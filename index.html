@@ -19,6 +19,9 @@
     .btn{padding:14px;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer}
     .animals{background:#4f46e5}.birds{background:#0284c7}.fruits{background:#16a34a}
     .verbs{background:#ca8a04}.household{background:#0f766e}.grocery{background:#7c3aed}
+    .synonyms { background: #9333ea; }
+    .antonyms { background: #0ea5e9; }
+
 
     .card{height:160px;background:#4f46e5;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;margin:12px 0}
     .inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
@@ -53,6 +56,14 @@
     <button class="btn verbs" onclick="selectCategory('verbs')">🏃 Verbs</button>
     <button class="btn household" onclick="selectCategory('household')">🏠 Household</button>
     <button class="btn grocery" onclick="selectCategory('grocery')">🛒 Grocery</button>
+<button class="btn synonyms" onclick="selectRelation('synonyms')">
+  🔁 Synonyms
+</button>
+
+<button class="btn antonyms" onclick="selectRelation('antonyms')">
+  🔀 Antonyms
+</button>
+
   </div>
 </div>
 
@@ -111,14 +122,148 @@ const DATA={
  grocery:['அரிசி|Rice','கோதுமை|Wheat','சர்க்கரை|Sugar','உப்பு|Salt','எண்ணெய்|Oil','பால்|Milk','தயிர்|Curd','வெண்ணெய்|Butter','முட்டை|Egg','பருப்பு|Lentils','கடலை|Peanut','பாசிப்பயறு|Green gram','உருளைக்கிழங்கு|Potato','வெங்காயம்|Onion','தக்காளி|Tomato','மிளகாய்|Chilli','மஞ்சள்|Turmeric','மிளகு|Pepper','சீரகம்|Cumin','கொத்தமல்லி|Coriander']
 };
 
+// ===== WORD RELATIONS DATA (20 WORDS) =====
+const WORD_RELATIONS = [
+  {
+    ta: "பெரியது",
+    en: "Big",
+    synonyms: { ta: ["விசாலமானது", "மிகப்பெரியது"], en: ["Large", "Huge"] },
+    antonyms: { ta: ["சிறியது"], en: ["Small"] }
+  },
+  {
+    ta: "வேகமாக",
+    en: "Fast",
+    synonyms: { ta: ["அதிவேகமாக"], en: ["Quick"] },
+    antonyms: { ta: ["மெதுவாக"], en: ["Slow"] }
+  },
+  {
+    ta: "சுத்தமானது",
+    en: "Clean",
+    synonyms: { ta: ["தூய்மையானது"], en: ["Neat"] },
+    antonyms: { ta: ["அழுக்கானது"], en: ["Dirty"] }
+  },
+  {
+    ta: "புதியது",
+    en: "New",
+    synonyms: { ta: ["சமீபத்திய"], en: ["Fresh"] },
+    antonyms: { ta: ["பழையது"], en: ["Old"] }
+  },
+  {
+    ta: "நல்லது",
+    en: "Good",
+    synonyms: { ta: ["சிறந்தது", "மேன்மையானது"], en: ["Nice", "Excellent"] },
+    antonyms: { ta: ["கெட்டது"], en: ["Bad"] }
+  },
+  {
+    ta: "சந்தோஷம்",
+    en: "Happy",
+    synonyms: { ta: ["மகிழ்ச்சி", "ஆனந்தம்"], en: ["Joyful", "Glad"] },
+    antonyms: { ta: ["சோகம்"], en: ["Sad"] }
+  },
+  {
+    ta: "அழகானது",
+    en: "Beautiful",
+    synonyms: { ta: ["இனிமையானது"], en: ["Pretty"] },
+    antonyms: { ta: ["அழகில்லாதது"], en: ["Ugly"] }
+  },
+  {
+    ta: "வலுவானது",
+    en: "Strong",
+    synonyms: { ta: ["உறுதியானது"], en: ["Powerful"] },
+    antonyms: { ta: ["பலவீனமானது"], en: ["Weak"] }
+  },
+  {
+    ta: "எளிதானது",
+    en: "Easy",
+    synonyms: { ta: ["சுலபமானது"], en: ["Simple"] },
+    antonyms: { ta: ["கடினமானது"], en: ["Hard"] }
+  },
+  {
+    ta: "மென்மையானது",
+    en: "Soft",
+    synonyms: { ta: ["நெகிழ்வானது"], en: ["Gentle"] },
+    antonyms: { ta: ["கடினமானது"], en: ["Hard"] }
+  },
+  {
+    ta: "குளிர்ந்தது",
+    en: "Cold",
+    synonyms: { ta: ["சீதமானது"], en: ["Cool"] },
+    antonyms: { ta: ["சூடானது"], en: ["Hot"] }
+  },
+  {
+    ta: "உயரமானது",
+    en: "Tall",
+    synonyms: { ta: ["நீளமானது"], en: ["High"] },
+    antonyms: { ta: ["குறுகிய"], en: ["Short"] }
+  },
+  {
+    ta: "வேகமானது",
+    en: "Quick",
+    synonyms: { ta: ["சுறுசுறுப்பானது"], en: ["Fast"] },
+    antonyms: { ta: ["மெதுவானது"], en: ["Slow"] }
+  },
+  {
+    ta: "பெரும்பான்மை",
+    en: "Many",
+    synonyms: { ta: ["அதிகமான"], en: ["Several"] },
+    antonyms: { ta: ["குறைவான"], en: ["Few"] }
+  },
+  {
+    ta: "முழுமையானது",
+    en: "Full",
+    synonyms: { ta: ["நிறைந்த"], en: ["Complete"] },
+    antonyms: { ta: ["காலியான"], en: ["Empty"] }
+  },
+  {
+    ta: "தூய்மை",
+    en: "Pure",
+    synonyms: { ta: ["சுத்தமான"], en: ["Clean"] },
+    antonyms: { ta: ["மாசான"], en: ["Impure"] }
+  },
+  {
+    ta: "வெளிச்சமானது",
+    en: "Bright",
+    synonyms: { ta: ["ஒளிமிக்க"], en: ["Shiny"] },
+    antonyms: { ta: ["இருண்ட"], en: ["Dark"] }
+  },
+  {
+    ta: "பாதுகாப்பானது",
+    en: "Safe",
+    synonyms: { ta: ["பாதுகாக்கப்பட்ட"], en: ["Secure"] },
+    antonyms: { ta: ["ஆபத்தானது"], en: ["Dangerous"] }
+  },
+  {
+    ta: "சுறுசுறுப்பானது",
+    en: "Active",
+    synonyms: { ta: ["வேகமான"], en: ["Energetic"] },
+    antonyms: { ta: ["சோம்பேறியான"], en: ["Lazy"] }
+  },
+  {
+    ta: "அமைதியானது",
+    en: "Quiet",
+    synonyms: { ta: ["மௌனமான"], en: ["Silent"] },
+    antonyms: { ta: ["சத்தமான"], en: ["Noisy"] }
+  }
+];
+
+
 let category='',list=[],i=0,score=0;
+let relationMode = null; // 'synonyms' | 'antonyms'
+let relationQuizMode = null; // 'synonyms' | 'antonyms'
+let isRelationQuiz = false;
+
 
 function show(id){
   ['home','mode','flash','quiz'].forEach(s=>document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
-function goHome(){ show('home'); }
+function goHome() {
+  relationMode = null;
+  relationQuizMode = null;
+  isRelationQuiz = false;
+  show('home');
+}
 
 function selectCategory(c){
   if(!DATA[c]) return;
@@ -129,28 +274,85 @@ function selectCategory(c){
 }
 
 // FLASHCARDS
-function startFlashcards(){
-  i=0;
+function startFlashcards() {
+  i = 0;
   show('flash');
-  document.getElementById('flashTitle').textContent=category.toUpperCase();
-  updateCard();
+
+  document.getElementById('flashTitle').textContent =
+    relationMode
+      ? (relationMode === 'synonyms' ? 'SYNONYMS' : 'ANTONYMS')
+      : category.toUpperCase();
+
+  if (relationMode) {
+    updateRelationCard(); // ✅ FIX: initial render
+  } else {
+    updateCard();
+  }
 }
+
 function updateCard(){
   cardInner.classList.remove('flipped');
   front.textContent=list[i].ta;
   back.textContent=list[i].en;
   counter.textContent=`${i+1}/${list.length}`;
 }
+
+function updateRelationCard() {
+  const item = WORD_RELATIONS[i];
+
+  // Front shows the word
+  front.textContent = `${item.ta} (${item.en})`;
+
+  // Back shows synonyms or antonyms
+  const list =
+    relationMode === 'synonyms'
+      ? item.synonyms.ta
+      : item.antonyms.ta;
+
+  back.innerHTML =
+    (relationMode === 'synonyms' ? 'Synonyms:' : 'Antonyms:') +
+    '<br>' +
+    list.map(w => '• ' + w).join('<br>');
+
+  counter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
+
+  cardInner.classList.remove('flipped');
+}
+
 function flipCard(){ cardInner.classList.toggle('flipped'); }
-function next(){ if(i<list.length-1){i++;updateCard();} }
-function prev(){ if(i>0){i--;updateCard();} }
+function next() {
+  const max = relationMode ? WORD_RELATIONS.length : list.length;
+  if (i < max - 1) {
+    i++;
+    relationMode ? updateRelationCard() : updateCard();
+  }
+}
+
+function prev() {
+  if (i > 0) {
+    i--;
+    relationMode ? updateRelationCard() : updateCard();
+  }
+}
+
 
 // QUIZ
-function startQuiz(){
-  i=0; score=0;
-  show('quiz');
-  quizTitle.textContent=category.toUpperCase();
-  loadQuiz();
+function startQuiz() {
+  i = 0;
+  score = 0;
+
+  if (relationQuizMode) {
+    isRelationQuiz = true;
+    show('quiz');
+    quizTitle.textContent =
+      relationQuizMode === 'synonyms' ? 'SYNONYMS QUIZ' : 'ANTONYMS QUIZ';
+    loadRelationQuiz();
+  } else {
+    isRelationQuiz = false;
+    show('quiz');
+    quizTitle.textContent = category.toUpperCase();
+    loadQuiz();
+  }
 }
 
 function loadQuiz(){
@@ -178,12 +380,85 @@ function loadQuiz(){
   });
 }
 
-function nextQuiz(){
-  if(i<list.length-1){ i++; loadQuiz(); }
-  else{ alert(`Score: ${score}/${list.length}`); goHome(); }
+function loadRelationQuiz() {
+  const item = WORD_RELATIONS[i];
+  options.innerHTML = '';
+  quizCounter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
+
+  const correctList =
+    relationQuizMode === 'synonyms'
+      ? item.synonyms.ta
+      : item.antonyms.ta;
+
+  const correct = correctList[0];
+
+  question.textContent =
+    `Choose the ${relationQuizMode.slice(0, -1)} of: ${item.ta}`;
+
+  // Collect wrong answers
+  let distractors = WORD_RELATIONS
+    .flatMap(w =>
+      [...w.synonyms.ta, ...w.antonyms.ta]
+    )
+    .filter(w => w !== correct);
+
+  let optionsSet = shuffle([correct, ...shuffle(distractors).slice(0, 3)]);
+  let answered = false;
+
+  optionsSet.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = opt;
+
+    btn.onclick = () => {
+      if (answered) return;
+      answered = true;
+
+      document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+
+      if (opt === correct) {
+        score++;
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('wrong');
+        document.querySelectorAll('.opt').forEach(b => {
+          if (b.textContent === correct) b.classList.add('correct');
+        });
+      }
+    };
+
+    options.appendChild(btn);
+  });
 }
 
+function nextQuiz() {
+  const max = isRelationQuiz ? WORD_RELATIONS.length : list.length;
+
+  if (i < max - 1) {
+    i++;
+    isRelationQuiz ? loadRelationQuiz() : loadQuiz();
+  } else {
+    alert(`Score: ${score}/${max}`);
+    relationQuizMode = null;
+    isRelationQuiz = false;
+    goHome();
+  }
+}
+
+
 function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
+// ===== WORD RELATIONS (PLACEHOLDER) =====
+function selectRelation(type) {
+  relationMode = type;          // for flashcards
+  relationQuizMode = type;      // for quiz
+  isRelationQuiz = false;
+
+  document.getElementById('modeTitle').textContent =
+    type === 'synonyms' ? 'SYNONYMS' : 'ANTONYMS';
+
+  show('mode');
+}
+
 
 // AUDIO
 let voice=null;
