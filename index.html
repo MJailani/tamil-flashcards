@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tamil Flashcards</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#f5f7fa;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
+    .app{background:#fff;padding:20px;border-radius:12px;width:380px;box-shadow:0 10px 25px rgba(0,0,0,.1);text-align:center}
+    h1{font-size:20px;margin-bottom:10px}
+    .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .home-grid button{padding:14px;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer}
+    .animals{background:#4f46e5}.birds{background:#0284c7}.fruits{background:#16a34a}.verbs{background:#ca8a04}.household{background:#0f766e}.grocery{background:#7c3aed}
+
+    .card-container{perspective:1000px;margin:20px 0}
+    .card{width:100%;height:160px;background:#4f46e5;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;transition:transform .6s;transform-style:preserve-3d;position:relative}
+    .card.flipped{transform:rotateY(180deg)}
+    .side{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:10px}
+    .back{background:#16a34a;transform:rotateY(180deg);font-size:22px}
+    .controls{display:flex;justify-content:space-between;margin-top:15px}
+    button.nav{padding:8px 14px;border:none;border-radius:8px;background:#4f46e5;color:#fff;cursor:pointer}
+    .counter{margin-top:10px;font-size:14px;color:#555}
+    #speak{margin-bottom:10px;padding:6px 12px;border:none;border-radius:6px;background:#9ca3af;color:#fff;cursor:not-allowed}
+  </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+</head>
+<body>
+<div class="app">
+
+  <!-- HOME -->
+  <div id="home">
+    <h1>📘 Tamil Flashcards</h1>
+    <p style="color:#555;font-size:14px;margin-bottom:18px">Choose a category</p>
+    <div class="home-grid">
+      <button class="animals" onclick="startCards('animals')">🐾 Animals</button>
+      <button class="birds" onclick="startCards('birds')">🐦 Birds</button>
+      <button class="fruits" onclick="startCards('fruits')">🍎 Fruits</button>
+      <button class="verbs" onclick="startCards('verbs')">🏃 Verbs</button>
+      <button class="household" onclick="startCards('household')">🏠 Household</button>
+      <button class="grocery" onclick="startCards('grocery')">🛒 Grocery</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div id="cards" style="display:none">
+    <h1 id="cardTitle"></h1>
+    <button id="speak">🔊 Loading audio…</button>
+    <div class="card-container">
+      <div class="card" id="card">
+        <div class="side front" id="front"></div>
+        <div class="side back" id="back"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="nav" onclick="prevCard()">Previous</button>
+      <button class="nav" onclick="nextCard()">Next</button>
+    </div>
+    <div class="counter" id="counter"></div>
+    <br>
+    <button class="nav" onclick="location.reload()">⬅ Back</button>
+  </div>
+</div>
+
+<script>
+/* ===== DATA ===== */
+const data={
+ animals:[['நாய்','Dog'],['பூனை','Cat'],['யானை','Elephant'],['சிங்கம்','Lion'],['புலி','Tiger'],['மாடு','Cow'],['குதிரை','Horse'],['ஆடு','Goat'],['செம்மறியாடு','Sheep'],['குரங்கு','Monkey'],['கரடி','Bear'],['நரி','Fox'],['மான்','Deer'],['ஒட்டகம்','Camel'],['பன்றி','Pig'],['எலி','Mouse'],['முயல்','Rabbit'],['நீர்யானை','Hippopotamus'],['முதலை','Crocodile'],['பாம்பு','Snake']],
+ birds:[['காகம்','Crow'],['கிளி','Parrot'],['மயில்','Peacock'],['சிட்டுக்குருவி','Sparrow'],['ஆந்தை','Owl'],['புறா','Pigeon'],['வாத்து','Duck'],['கோழி','Hen'],['சேவல்','Rooster'],['குயில்','Cuckoo'],['பருந்து','Eagle'],['கழுகு','Vulture'],['நாரை','Stork'],['மீன்கொத்தி','Kingfisher'],['அன்னம்','Swan'],['வான்கோழி','Turkey'],['பென்குயின்','Penguin'],['தும்பி','Bulbul'],['மைனா','Myna'],['நாரைமூக்கு','Crane']],
+ fruits:[['ஆப்பிள்','Apple'],['வாழைப்பழம்','Banana'],['மாம்பழம்','Mango'],['திராட்சை','Grapes'],['ஆரஞ்சு','Orange'],['எலுமிச்சை','Lemon'],['பப்பாளி','Papaya'],['கொய்யா','Guava'],['மாதுளை','Pomegranate'],['அன்னாசி','Pineapple'],['ஸ்ட்ராபெரி','Strawberry'],['பேரிக்காய்','Pear'],['சப்போட்டா','Sapota'],['நாவற்பழம்','Jamun'],['ஆமணக்கு','Fig'],['பிளம்','Plum'],['செர்ரி','Cherry'],['பீச்','Peach'],['பேரிச்சை','Date'],['கிவி','Kiwi']],
+ verbs:[['படி','Read'],['எழுது','Write'],['ஓடு','Run'],['நட','Walk'],['சாப்பிடு','Eat'],['குடி','Drink'],['பேசு','Speak'],['கேள்','Listen'],['பார்','See'],['எடு','Take'],['கொடு','Give'],['வா','Come'],['போ','Go'],['உட்கார்','Sit'],['நில்','Stand'],['தூங்கு','Sleep'],['எழு','Wake'],['விளையாடு','Play'],['வேலைசெய்','Work'],['சிந்தி','Think']],
+ household:[['மேஜை','Table'],['நாற்காலி','Chair'],['கட்டில்','Bed'],['அலமாரி','Cupboard'],['கதவு','Door'],['ஜன்னல்','Window'],['விளக்கு','Lamp'],['மின்விசிறி','Fan'],['டிவி','Television'],['ஃப்ரிட்ஜ்','Refrigerator'],['அடுப்பு','Stove'],['பாத்திரம்','Vessel'],['கரண்டி','Spoon'],['தட்டு','Plate'],['கிண்ணம்','Bowl'],['துடைப்பம்','Broom'],['கடிகாரம்','Clock'],['தலையணை','Pillow'],['போர்வை','Blanket'],['தொலைபேசி','Telephone']],
+ grocery:[['அரிசி','Rice'],['கோதுமை','Wheat'],['சர்க்கரை','Sugar'],['உப்பு','Salt'],['எண்ணெய்','Oil'],['பால்','Milk'],['தயிர்','Curd'],['வெண்ணெய்','Butter'],['முட்டை','Egg'],['பருப்பு','Lentils'],['கடலை','Peanut'],['பாசிப்பயறு','Green gram'],['உருளைக்கிழங்கு','Potato'],['வெங்காயம்','Onion'],['தக்காளி','Tomato'],['மிளகாய்','Chilli'],['மஞ்சள்','Turmeric'],['மிளகு','Pepper'],['சீரகம்','Cumin'],['கொத்தமல்லி','Coriander']]
+};
+
+let cards=[],idx=0;
+const home=document.getElementById('home');
+const cardsView=document.getElementById('cards');
+const front=document.getElementById('front');
+const back=document.getElementById('back');
+const counter=document.getElementById('counter');
+const card=document.getElementById('card');
+const speakBtn=document.getElementById('speak');
+const title=document.getElementById('cardTitle');
+
+function startCards(type){
+ if(!data[type]){console.error('Unknown category',type);return;}
+ cards=data[type]; idx=0;
+ home.style.display='none'; cardsView.style.display='block';
+ title.textContent=type.charAt(0).toUpperCase()+type.slice(1);
+ updateCard();
+}
+
+function updateCard(){
+ card.classList.remove('flipped');
+ front.textContent=cards[idx][0];
+ back.textContent=cards[idx][1];
+ counter.textContent=`Card ${idx+1} of ${cards.length}`;
+}
+
+card.onclick=()=>card.classList.toggle('flipped');
+function nextCard(){ if(idx<cards.length-1){idx++;updateCard();} }
+function prevCard(){ if(idx>0){idx--;updateCard();} }
+
+/* AUDIO */
+let tamilVoice=null;
+function loadVoices(){const v=speechSynthesis.getVoices(); tamilVoice=v.find(x=>x.lang==='ta-IN')||v.find(x=>x.lang&&x.lang.startsWith('ta'));
+ if(v.length){speakBtn.textContent='🔊 Listen';speakBtn.disabled=false;speakBtn.style.background='#22c55e';speakBtn.style.cursor='pointer';}}
+speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
+
+speakBtn.onclick=()=>{speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(front.textContent);
+ u.lang='ta-IN'; u.rate=0.75; if(tamilVoice)u.voice=tamilVoice; speechSynthesis.speak(u);};
+
+// PWA: Register Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js');
+  });
+}
+</script>
+</body>
+</html>
