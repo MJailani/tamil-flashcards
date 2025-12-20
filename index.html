@@ -12,32 +12,23 @@
     .app{background:#fff;padding:20px;border-radius:14px;width:380px;box-shadow:0 10px 25px rgba(0,0,0,.1);text-align:center}
     h1{font-size:20px;margin-bottom:10px}
     p{font-size:14px;color:#555}
-
     .hidden{display:none}
-
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
     .btn{padding:14px;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer}
     .animals{background:#4f46e5}.birds{background:#0284c7}.fruits{background:#16a34a}
     .verbs{background:#ca8a04}.household{background:#0f766e}.grocery{background:#7c3aed}
-    .synonyms { background: #9333ea; }
-    .antonyms { background: #0ea5e9; }
-
-
+    .synonyms{background:#9333ea}.antonyms{background:#0ea5e9}
     .card{height:160px;background:#4f46e5;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;margin:12px 0}
     .inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
     .inner.flipped{transform:rotateY(180deg)}
     .side{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:10px}
     .back{background:#16a34a;transform:rotateY(180deg);font-size:22px}
-
     .fc-nav{display:flex;justify-content:space-between;margin-top:10px}
-
     .options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
     .opt{padding:10px;border-radius:8px;border:1px solid #c7d2fe;background:#eef2ff;color:#1f2937;cursor:pointer}
     .correct{background:#bbf7d0;color:#065f46}
     .wrong{background:#fecaca;color:#7f1d1d}
-
     .quiz-nav{display:flex;justify-content:space-between;margin-top:12px}
-
     button{padding:8px 14px;border:none;border-radius:8px;background:#4f46e5;color:#fff;cursor:pointer}
     #speak,#speakQuiz{margin:10px 0;background:#9ca3af}
   </style>
@@ -56,14 +47,8 @@
     <button class="btn verbs" onclick="selectCategory('verbs')">🏃 Verbs</button>
     <button class="btn household" onclick="selectCategory('household')">🏠 Household</button>
     <button class="btn grocery" onclick="selectCategory('grocery')">🛒 Grocery</button>
-<button class="btn synonyms" onclick="selectRelation('synonyms')">
-  🔁 Synonyms
-</button>
-
-<button class="btn antonyms" onclick="selectRelation('antonyms')">
-  🔀 Antonyms
-</button>
-
+    <button class="btn synonyms" onclick="selectRelation('synonyms')">🔁 Synonyms</button>
+    <button class="btn antonyms" onclick="selectRelation('antonyms')">🔀 Antonyms</button>
   </div>
 </div>
 
@@ -247,245 +232,214 @@ const WORD_RELATIONS = [
 ];
 
 
-let category='',list=[],i=0,score=0;
-let relationMode = null; // 'synonyms' | 'antonyms'
-let relationQuizMode = null; // 'synonyms' | 'antonyms'
+// ================= GLOBAL STATE =================
+let category = '';
+let list = [];
+let i = 0;
+let score = 0;
+let relationMode = null;
+let relationQuizMode = null;
 let isRelationQuiz = false;
 
-
+// ================= HELPERS =================
 function show(id){
-  ['home','mode','flash','quiz'].forEach(s=>document.getElementById(s).classList.add('hidden'));
+  ['home','mode','flash','quiz'].forEach(s => document.getElementById(s).classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
 }
 
-function goHome() {
+function goHome(){
   relationMode = null;
   relationQuizMode = null;
   isRelationQuiz = false;
+  i = 0;
   show('home');
 }
 
+function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
+
+// ================= DATA GUARDS =================
+function hasCategoryData(){ return Array.isArray(list) && list.length > 0; }
+function hasRelationData(){ return Array.isArray(WORD_RELATIONS) && WORD_RELATIONS.length > 0; }
+
+// ================= CATEGORY =================
 function selectCategory(c){
-  if(!DATA[c]) return;
-  category=c;
-  list=DATA[c].map(x=>{const[t,e]=x.split('|');return{ta:t,en:e}});
-  document.getElementById('modeTitle').textContent=c.toUpperCase();
+  if(!DATA[c]){
+    alert('Category data not available');
+    return;
+  }
+  category = c;
+  relationMode = null;
+  relationQuizMode = null;
+  list = DATA[c].map(x => {
+    const [t, e] = x.split('|');
+    return { ta: t, en: e };
+  });
+  i = 0;
+  modeTitle.textContent = c.toUpperCase();
   show('mode');
 }
 
-// FLASHCARDS
-function startFlashcards() {
+function selectRelation(type){
+  if(!hasRelationData()){
+    alert('Word relation data not available');
+    return;
+  }
+  relationMode = type;
+  relationQuizMode = type;
+  category = '';
+  i = 0;
+  modeTitle.textContent = type.toUpperCase();
+  show('mode');
+}
+
+// ================= FLASHCARDS =================
+function renderFlashcard(){
+  relationMode ? updateRelationCard() : updateCard();
+}
+
+function startFlashcards(){
   i = 0;
   show('flash');
-
-  document.getElementById('flashTitle').textContent =
-    relationMode
-      ? (relationMode === 'synonyms' ? 'SYNONYMS' : 'ANTONYMS')
-      : category.toUpperCase();
-
-  if (relationMode) {
-    updateRelationCard(); // ✅ FIX: initial render
-  } else {
-    updateCard();
-  }
+  flashTitle.textContent = relationMode ? relationMode.toUpperCase() : category.toUpperCase();
+  renderFlashcard();
 }
 
 function updateCard(){
+  if(!hasCategoryData() || !list[i]) return;
   cardInner.classList.remove('flipped');
-  front.textContent=list[i].ta;
-  back.textContent=list[i].en;
-  counter.textContent=`${i+1}/${list.length}`;
+  front.textContent = list[i].ta;
+  back.textContent = list[i].en;
+  counter.textContent = `${i + 1}/${list.length}`;
 }
 
-function updateRelationCard() {
+function updateRelationCard(){
+  if(!hasRelationData() || !WORD_RELATIONS[i]) return;
   const item = WORD_RELATIONS[i];
-
-  // Front shows the word
-  front.textContent = `${item.ta} (${item.en})`;
-
-  // Back shows synonyms or antonyms
-  const list =
-    relationMode === 'synonyms'
-      ? item.synonyms.ta
-      : item.antonyms.ta;
-
-  back.innerHTML =
-    (relationMode === 'synonyms' ? 'Synonyms:' : 'Antonyms:') +
-    '<br>' +
-    list.map(w => '• ' + w).join('<br>');
-
-  counter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
-
   cardInner.classList.remove('flipped');
+  front.textContent = `${item.ta} (${item.en})`;
+  const arr = relationMode === 'synonyms' ? item.synonyms.ta : item.antonyms.ta;
+  back.innerHTML = `${relationMode === 'synonyms' ? 'Synonyms' : 'Antonyms'}:<br>` +
+    arr.map(w => '• ' + w).join('<br>');
+  counter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
+}
+
+function next(){
+  const max = relationMode ? WORD_RELATIONS.length : list.length;
+  if(i < max - 1){ i++; renderFlashcard(); }
+}
+
+function prev(){
+  if(i > 0){ i--; renderFlashcard(); }
 }
 
 function flipCard(){ cardInner.classList.toggle('flipped'); }
-function next() {
-  const max = relationMode ? WORD_RELATIONS.length : list.length;
-  if (i < max - 1) {
-    i++;
-    relationMode ? updateRelationCard() : updateCard();
-  }
-}
 
-function prev() {
-  if (i > 0) {
-    i--;
-    relationMode ? updateRelationCard() : updateCard();
-  }
-}
-
-
-// QUIZ
-function startQuiz() {
+// ================= QUIZ =================
+function startQuiz(){
   i = 0;
   score = 0;
+  show('quiz');
 
-  if (relationQuizMode) {
+  if(relationQuizMode){
+    if(!hasRelationData()) return;
     isRelationQuiz = true;
-    show('quiz');
-    quizTitle.textContent =
-      relationQuizMode === 'synonyms' ? 'SYNONYMS QUIZ' : 'ANTONYMS QUIZ';
+    quizTitle.textContent = relationQuizMode.toUpperCase() + ' QUIZ';
     loadRelationQuiz();
   } else {
+    if(!hasCategoryData()) return;
     isRelationQuiz = false;
-    show('quiz');
     quizTitle.textContent = category.toUpperCase();
     loadQuiz();
   }
 }
 
 function loadQuiz(){
-  const q=list[i];
-  question.textContent=q.ta;
-  options.innerHTML='';
-  quizCounter.textContent=`${i+1}/${list.length}`;
-  let answered=false;
-  let opts=[q.en,...shuffle(list.filter(x=>x.en!==q.en)).slice(0,3).map(x=>x.en)];
-  shuffle(opts).forEach(o=>{
-    const b=document.createElement('button');
-    b.className='opt';
-    b.textContent=o;
-    b.onclick=()=>{
+  if(!list[i]) return;
+  const q = list[i];
+  question.textContent = q.ta;
+  options.innerHTML = '';
+  quizCounter.textContent = `${i + 1}/${list.length}`;
+
+  let answered = false;
+  let opts = [
+    q.en,
+    ...shuffle(list.filter(x => x.en !== q.en)).slice(0, 3).map(x => x.en)
+  ];
+
+  shuffle(opts).forEach(o => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = o;
+    b.onclick = () => {
       if(answered) return;
-      answered=true;
-      document.querySelectorAll('.opt').forEach(btn=>btn.disabled=true);
-      if(o===q.en){score++;b.classList.add('correct');}
+      answered = true;
+      document.querySelectorAll('.opt').forEach(btn => btn.disabled = true);
+      if(o === q.en){ score++; b.classList.add('correct'); }
       else{
         b.classList.add('wrong');
-        document.querySelectorAll('.opt').forEach(btn=>{if(btn.textContent===q.en)btn.classList.add('correct');});
+        document.querySelectorAll('.opt').forEach(btn => {
+          if(btn.textContent === q.en) btn.classList.add('correct');
+        });
       }
     };
     options.appendChild(b);
   });
 }
 
-function loadRelationQuiz() {
+function loadRelationQuiz(){
+  if(!WORD_RELATIONS[i]) return;
   const item = WORD_RELATIONS[i];
   options.innerHTML = '';
   quizCounter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
 
-  const correctList =
-    relationQuizMode === 'synonyms'
-      ? item.synonyms.ta
-      : item.antonyms.ta;
+  const correctList = relationQuizMode === 'synonyms'
+    ? item.synonyms.ta
+    : item.antonyms.ta;
 
   const correct = correctList[0];
+  question.textContent = `Choose the ${relationQuizMode.slice(0,-1)} of: ${item.ta}`;
 
-  question.textContent =
-    `Choose the ${relationQuizMode.slice(0, -1)} of: ${item.ta}`;
-
-  // Collect wrong answers
   let distractors = WORD_RELATIONS
-    .flatMap(w =>
-      [...w.synonyms.ta, ...w.antonyms.ta]
-    )
+    .flatMap(w => [...w.synonyms.ta, ...w.antonyms.ta])
     .filter(w => w !== correct);
 
-  let optionsSet = shuffle([correct, ...shuffle(distractors).slice(0, 3)]);
+  let optionsSet = shuffle([correct, ...shuffle(distractors).slice(0,3)]);
   let answered = false;
 
   optionsSet.forEach(opt => {
     const btn = document.createElement('button');
     btn.className = 'opt';
     btn.textContent = opt;
-
     btn.onclick = () => {
-      if (answered) return;
+      if(answered) return;
       answered = true;
-
       document.querySelectorAll('.opt').forEach(b => b.disabled = true);
-
-      if (opt === correct) {
-        score++;
-        btn.classList.add('correct');
-      } else {
+      if(opt === correct){ score++; btn.classList.add('correct'); }
+      else{
         btn.classList.add('wrong');
         document.querySelectorAll('.opt').forEach(b => {
-          if (b.textContent === correct) b.classList.add('correct');
+          if(b.textContent === correct) b.classList.add('correct');
         });
       }
     };
-
     options.appendChild(btn);
   });
 }
 
-function nextQuiz() {
+function nextQuiz(){
   const max = isRelationQuiz ? WORD_RELATIONS.length : list.length;
-
-  if (i < max - 1) {
+  if(i < max - 1){
     i++;
     isRelationQuiz ? loadRelationQuiz() : loadQuiz();
   } else {
     alert(`Score: ${score}/${max}`);
-    relationQuizMode = null;
-    isRelationQuiz = false;
     goHome();
   }
 }
 
-
-function shuffle(a){ return a.sort(()=>Math.random()-0.5); }
-// ===== WORD RELATIONS (PLACEHOLDER) =====
-function selectRelation(type) {
-  relationMode = type;          // for flashcards
-  relationQuizMode = type;      // for quiz
-  isRelationQuiz = false;
-
-  document.getElementById('modeTitle').textContent =
-    type === 'synonyms' ? 'SYNONYMS' : 'ANTONYMS';
-
-  show('mode');
-}
-
-
-// AUDIO
-let voice=null;
-function loadVoices(){
-  const v=speechSynthesis.getVoices();
-  voice=v.find(x=>x.lang==='ta-IN')||v.find(x=>x.lang&&x.lang.startsWith('ta'));
-}
-speechSynthesis.onvoiceschanged=loadVoices; loadVoices();
-
-speak.onclick=()=>{
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(front.textContent);
-  u.lang='ta-IN'; if(voice)u.voice=voice;
-  speechSynthesis.speak(u);
-};
-
-speakQuiz.onclick=()=>{
-  speechSynthesis.cancel();
-  const u=new SpeechSynthesisUtterance(question.textContent);
-  u.lang='ta-IN'; if(voice)u.voice=voice;
-  speechSynthesis.speak(u);
-};
-
-// PWA
-if('serviceWorker'in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('service-worker.js'));
-}
+// ================= BASIC SANITY TESTS =================
+console.assert(typeof DATA === 'object', 'DATA must be defined');
+console.assert(Array.isArray(WORD_RELATIONS), 'WORD_RELATIONS must be an array');
 </script>
 </body>
 </html>
