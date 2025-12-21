@@ -51,6 +51,15 @@
       0%{opacity:1}
       100%{opacity:0.45}
     }
+  
+    .progress-cards{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+    .p-card{display:flex;gap:12px;align-items:center;padding:14px;border-radius:14px}
+    .p-card h4{margin:0 0 4px 0}
+    .p-card p{margin:2px 0;font-size:14px}
+    .p-icon{font-size:28px}
+    .p-card.quiz{background:#eef2ff}
+    .p-card.exercise{background:#f0fdf4}
+    .p-card.match{background:#fff7ed}
   </style>
 </head>
 <body>
@@ -59,6 +68,17 @@
   <!-- HOME -->
   <div id="home">
     <h2>📘 Tamil Learning</h2>
+    <!-- CURRENT PROFILE -->
+    <div id="homeProfile" style="margin:8px 0;color:#374151;font-size:14px">
+      👤 <b id="currentProfileName"></b>
+      <button
+        style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:8px;background:#e5e7eb;color:#111827"
+        onclick="changeProfile()"
+      >
+        Change
+      </button>
+    </div>
+
     <p>Select a category</p>
     <div class="grid">
       <button class="btn animals" onclick="selectCategory('animals')">🐾 Animals</button>
@@ -132,9 +152,69 @@
     <p id="resultText"></p>
     <div class="mode-grid">
       <button class="btn fruits mode-btn" onclick="retryActivity()">🔁 Retry</button>
+      <button class="btn birds mode-btn" onclick="openProgress()">📊 Progress</button>
       <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
     </div>
   </div>
+  <!-- PROFILE -->
+<div id="profile" class="hidden">
+  <h2>👤 Who is learning today?</h2>
+  <input
+    id="profileName"
+    placeholder="Enter name"
+    maxlength="12"
+    style="padding:10px;width:90%;margin-top:12px;border-radius:10px;border:1px solid #c7d2fe;font-size:16px"
+  />
+  <button
+    class="btn animals mode-btn"
+    style="margin-top:16px"
+    onclick="confirmProfile()"
+  >
+    ▶ Start Learning
+  </button>
+</div>
+
+  <!-- PROGRESS -->
+  <div id="progress" class="hidden">
+ <h2>📊 <span id="profileLabel"></span>’s Progress</h2>
+
+  <p style="color:#6b7280;margin-top:-6px">Keep going! Every attempt makes you better ⭐</p>
+
+  <div class="progress-cards">
+    <div class="p-card quiz">
+      <div class="p-icon">🧠</div>
+      <div>
+        <h4>Quiz</h4>
+        <p>Attempts: <b><span id="pQuizAttempts">0</span></b></p>
+        <p>Best Score: <b><span id="pQuizBest">0</span></b></p>
+      </div>
+    </div>
+
+    <div class="p-card exercise">
+      <div class="p-icon">✏️</div>
+      <div>
+        <h4>Exercise</h4>
+        <p>Attempts: <b><span id="pExerciseAttempts">0</span></b></p>
+        <p>Best Score: <b><span id="pExerciseBest">0</span></b></p>
+      </div>
+    </div>
+
+    <div class="p-card match">
+      <div class="p-icon">🧩</div>
+      <div>
+        <h4>Match</h4>
+        <p>Attempts: <b><span id="pMatchAttempts">0</span></b></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-grid" style="margin-top:18px">
+    <button class="btn birds mode-btn" onclick="changeProfile()">👤 Change Profile</button>
+    <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
+  </div>
+</div>
+
+  
 </div>
 
 <script>
@@ -278,16 +358,25 @@ const WORD_RELATIONS = [
 
   let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
+
   function show(id){
-    ['home','mode','flash','quiz','exercise','match','result'].forEach(v=>{
-      document.getElementById(v).style.display='none';
-    });
-    document.getElementById(id).style.display='block';
-  }
+  ['profile','home','mode','flash','quiz','exercise','match','result','progress']
+    .forEach(v => document.getElementById(v).style.display = 'none');
+  document.getElementById(id).style.display = 'block';
+}
+
 
   function goHome(){ show('home'); }
 
-  window.onload = () => show('home');
+  window.onload = () => {
+  if(getProfile()){
+    show('home');
+    updateHomeProfile();
+  } else {
+    show('profile');
+  }
+};
+
 
   function selectCategory(c){
     list = DATA[c].map(x=>{ const[t,e]=x.split('|'); return {ta:t,en:e}; });
@@ -343,7 +432,7 @@ const WORD_RELATIONS = [
 
   function nextQuiz(){
     if(quizNext.disabled) return;
-    if(i===list.length-1){ showResult(); return; }
+    if(i===list.length-1){ recordQuiz(score); showResult(); return; }
     i++; loadQuiz();
   }
 
@@ -381,7 +470,7 @@ const WORD_RELATIONS = [
 
   function nextExercise(){
     if(exerciseNext.disabled) return;
-    if(exerciseIndex===exerciseOrder.length-1){ resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
+    if(exerciseIndex===exerciseOrder.length-1){recordExercise(score); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
     exerciseIndex++; loadExercise();
   }
 
@@ -419,7 +508,7 @@ const WORD_RELATIONS = [
       matchedCount++;
       matchCounter.textContent=`${matchedCount} / ${matchPairs.length}`;
       selectedLeft=null; selectedRight=null;
-      if(matchedCount===matchPairs.length){ resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
+      if(matchedCount===matchPairs.length){ recordMatch(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
     } else {
       selectedLeft.btn.classList.add('wrong'); selectedRight.btn.classList.add('wrong');
       setTimeout(()=>{
@@ -431,6 +520,96 @@ const WORD_RELATIONS = [
   }
 
   function retryActivity(){ i=0; score=0; show('quiz'); loadQuiz(); }
+
+  function confirmProfile(){
+  const input = document.getElementById('profileName');
+  const name = input.value.trim();
+
+  if(!/^[a-zA-Z]{2,12}$/.test(name)){
+    alert('Please enter a valid name (2–12 letters)');
+    return;
+  }
+
+  setProfile(name);
+  updateHomeProfile();
+  show('home');
+}
+
+function changeProfile(){
+  show('profile');
+  document.getElementById('profileName').value = '';
+}
+
+function updateHomeProfile(){
+  const el = document.getElementById('currentProfileName');
+  if(el){
+    el.textContent = getProfile();
+  }
+}
+
+  /* ===== PROGRESS TRACKING (GLOBAL) ===== */
+const PROGRESS_KEY = () => `tamil_progress_${getProfile()}`;
+
+
+function getProgress(){
+  return JSON.parse(localStorage.getItem(PROGRESS_KEY())) || {
+    quiz:{attempts:0,best:0},
+    exercise:{attempts:0,best:0},
+    match:{attempts:0}
+  };
+}
+
+function saveProgress(p){
+  localStorage.setItem(PROGRESS_KEY(), JSON.stringify(p));
+}
+
+function recordQuiz(score){
+  const p = getProgress();
+  p.quiz.attempts++;
+  p.quiz.best = Math.max(p.quiz.best, score);
+  saveProgress(p);
+}
+
+function recordExercise(score){
+  const p = getProgress();
+  p.exercise.attempts++;
+  p.exercise.best = Math.max(p.exercise.best, score);
+  saveProgress(p);
+}
+
+function recordMatch(){
+  const p = getProgress();
+  p.match.attempts++;
+  saveProgress(p);
+}
+
+/* ===== PROFILE ===== */
+let currentProfile = localStorage.getItem('tamil_current_profile');
+
+function setProfile(name){
+  currentProfile = name.toLowerCase();
+  localStorage.setItem('tamil_current_profile', currentProfile);
+}
+
+function getProfile(){
+  return currentProfile;
+}
+
+function openProgress(){
+  document.getElementById('profileLabel').textContent = getProfile();
+
+  const p = getProgress();
+
+  document.getElementById('pQuizAttempts').textContent = p.quiz.attempts;
+  document.getElementById('pQuizBest').textContent = p.quiz.best;
+
+  document.getElementById('pExerciseAttempts').textContent = p.exercise.attempts;
+  document.getElementById('pExerciseBest').textContent = p.exercise.best;
+
+  document.getElementById('pMatchAttempts').textContent = p.match.attempts;
+
+  show('progress');
+}
 
   console.assert(typeof selectCategory==='function','selectCategory exists');
 </script>
