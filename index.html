@@ -4,100 +4,120 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tamil Learning App</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#4f46e5">
-
   <style>
     body{font-family:Arial,sans-serif;background:#f5f7fa;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
     .app{background:#fff;padding:20px;border-radius:14px;width:380px;box-shadow:0 10px 25px rgba(0,0,0,.1);text-align:center}
-    h1{font-size:20px;margin-bottom:10px}
-    p{font-size:14px;color:#555}
+
     .hidden{display:none}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px}
+
+    #flashCounter,#quizCounter,#exerciseCounter{font-size:14px;color:#6b7280;margin-bottom:8px;text-align:right}
+
+    #result h2{margin-bottom:10px}
+    #result p{font-size:18px;margin-bottom:20px}
+
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+    .mode-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:20px}
+    .mode-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;font-size:18px;border-radius:14px}
+
     .btn{padding:14px;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer}
     .animals{background:#4f46e5}.birds{background:#0284c7}.fruits{background:#16a34a}
     .verbs{background:#ca8a04}.household{background:#0f766e}.grocery{background:#7c3aed}
     .synonyms{background:#9333ea}.antonyms{background:#0ea5e9}
+
     .card{height:160px;background:#4f46e5;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;margin:12px 0}
     .inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
     .inner.flipped{transform:rotateY(180deg)}
-    .side{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;padding:10px}
-    .back{background:#16a34a;transform:rotateY(180deg);font-size:22px}
-    .fc-nav{display:flex;justify-content:space-between;margin-top:10px}
+    .side{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
+    .back{background:#16a34a;transform:rotateY(180deg)}
+
     .options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
-    .opt{padding:10px;border-radius:8px;border:1px solid #c7d2fe;background:#eef2ff;color:#1f2937;cursor:pointer}
+    .opt{padding:10px;border-radius:8px;border:1px solid #c7d2fe;background:#eef2ff;color:#1f2937;font-size:15px;cursor:pointer}
     .correct{background:#bbf7d0;color:#065f46}
     .wrong{background:#fecaca;color:#7f1d1d}
-    .quiz-nav{display:flex;justify-content:space-between;margin-top:12px}
+
     button{padding:8px 14px;border:none;border-radius:8px;background:#4f46e5;color:#fff;cursor:pointer}
-    #speak,#speakQuiz{margin:10px 0;background:#9ca3af}
   </style>
 </head>
 <body>
 <div class="app">
 
-<!-- HOME -->
-<div id="home">
-  <h1>📘 Tamil Learning</h1>
-  <p>Select a category</p>
-  <div class="grid">
-    <button class="btn animals" onclick="selectCategory('animals')">🐾 Animals</button>
-    <button class="btn birds" onclick="selectCategory('birds')">🐦 Birds</button>
-    <button class="btn fruits" onclick="selectCategory('fruits')">🍎 Fruits</button>
-    <button class="btn verbs" onclick="selectCategory('verbs')">🏃 Verbs</button>
-    <button class="btn household" onclick="selectCategory('household')">🏠 Household</button>
-    <button class="btn grocery" onclick="selectCategory('grocery')">🛒 Grocery</button>
-    <button class="btn synonyms" onclick="selectRelation('synonyms')">🔁 Synonyms</button>
-    <button class="btn antonyms" onclick="selectRelation('antonyms')">🔀 Antonyms</button>
-  </div>
-</div>
-
-<!-- MODE -->
-<div id="mode" class="hidden">
-  <h1 id="modeTitle"></h1>
-  <p>Select learning mode</p>
-  <div class="grid">
-    <button class="btn animals" onclick="startFlashcards()">🃏 Flashcards</button>
-    <button class="btn birds" onclick="startQuiz()">🧠 Quiz</button>
-  </div>
-  <button style="margin-top:12px" onclick="goHome()">⬅ Home</button>
-</div>
-
-<!-- FLASHCARDS -->
-<div id="flash" class="hidden">
-  <h1 id="flashTitle"></h1>
-  <button id="speak">🔊 Listen</button>
-  <div class="card" onclick="flipCard()">
-    <div class="inner" id="cardInner">
-      <div class="side" id="front"></div>
-      <div class="side back" id="back"></div>
+  <!-- HOME -->
+  <div id="home">
+    <h2>📘 Tamil Learning</h2>
+    <p>Select a category</p>
+    <div class="grid">
+      <button class="btn animals" onclick="selectCategory('animals')">🐾 Animals</button>
+      <button class="btn birds" onclick="selectCategory('birds')">🐦 Birds</button>
+      <button class="btn fruits" onclick="selectCategory('fruits')">🍎 Fruits</button>
+      <button class="btn verbs" onclick="selectCategory('verbs')">🏃 Verbs</button>
+      <button class="btn household" onclick="selectCategory('household')">🏠 Household</button>
+      <button class="btn grocery" onclick="selectCategory('grocery')">🛒 Grocery</button>
+      <button class="btn synonyms" onclick="selectRelation('synonyms')">🔁 Synonyms</button>
+      <button class="btn antonyms" onclick="selectRelation('antonyms')">🔀 Antonyms</button>
     </div>
   </div>
-  <div class="fc-nav">
-    <button onclick="prev()">Previous</button>
+
+  <!-- MODE -->
+  <div id="mode" class="hidden">
+    <h3 id="modeTitle"></h3>
+    <p>Select learning mode</p>
+    <div class="mode-grid">
+      <button class="btn animals mode-btn" onclick="startFlashcards()">🃏 Flashcards</button>
+      <button class="btn birds mode-btn" onclick="startQuiz()">🧠 Quiz</button>
+      <button class="btn fruits mode-btn" onclick="startExercise()">✏️ Exercises</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div id="flash" class="hidden">
+    <div id="flashCounter"></div>
+    <button onclick="goHome()">🏠 Home</button>
+    <div class="card" onclick="flipCard()">
+      <div class="inner" id="cardInner">
+        <div class="side" id="front"></div>
+        <div class="side back" id="back"></div>
+      </div>
+    </div>
+    <button onclick="prev()">Prev</button>
     <button onclick="next()">Next</button>
   </div>
-  <p id="counter"></p>
-  <button onclick="goHome()">⬅ Home</button>
-</div>
 
-<!-- QUIZ -->
-<div id="quiz" class="hidden">
-  <h1 id="quizTitle"></h1>
-  <div id="question" style="font-size:26px;margin:14px 0"></div>
-  <button id="speakQuiz">🔊 Listen</button>
-  <div class="options" id="options"></div>
-  <div class="quiz-nav">
-    <button onclick="goHome()">⬅ Home</button>
-    <button onclick="nextQuiz()">Next ➡</button>
+  <!-- QUIZ -->
+  <div id="quiz" class="hidden">
+    <div id="quizCounter"></div>
+    <button onclick="goHome()">🏠 Home</button>
+    <h3 id="question"></h3>
+    <div id="options" class="options"></div>    
+    <button id="quizNext" onclick="nextQuiz()" disabled>Next</button>
+
+
   </div>
-  <p id="quizCounter"></p>
-</div>
+
+  <!-- EXERCISE -->
+  <div id="exercise" class="hidden">
+    <div id="exerciseCounter"></div>
+    <button onclick="goHome()">🏠 Home</button>
+    <h3 id="exerciseQuestion"></h3>
+    <div id="exerciseOptions" class="options"></div>    
+    <button id="exerciseNext" onclick="nextExercise()" disabled>Next</button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden">
+    <h2>🎉 Well Done!</h2>
+    <p id="resultText"></p>
+    <div class="mode-grid">
+      <button class="btn fruits mode-btn" onclick="retryActivity()">🔁 Retry</button>
+      <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
+    </div>
+  </div>
 
 </div>
 
 <script>
-// ===== DATA =====
+  function shuffle(arr){return arr.slice().sort(()=>Math.random()-0.5);}
+
+  // ===== DATA =====
 const DATA={
  animals:['நாய்|Dog','பூனை|Cat','யானை|Elephant','சிங்கம்|Lion','புலி|Tiger','மாடு|Cow','குதிரை|Horse','ஆடு|Goat','செம்மறியாடு|Sheep','குரங்கு|Monkey','கரடி|Bear','நரி|Fox','மான்|Deer','ஒட்டகம்|Camel','பன்றி|Pig','எலி|Mouse','முயல்|Rabbit','நீர்யானை|Hippopotamus','முதலை|Crocodile','பாம்பு|Snake'],
  birds:['காகம்|Crow','கிளி|Parrot','மயில்|Peacock','சிட்டுக்குருவி|Sparrow','ஆந்தை|Owl','புறா|Pigeon','வாத்து|Duck','கோழி|Hen','சேவல்|Rooster','குயில்|Cuckoo','பருந்து|Eagle','கழுகு|Vulture','நாரை|Stork','மீன்கொத்தி|Kingfisher','அன்னம்|Swan','வான்கோழி|Turkey','பென்குயின்|Penguin','தும்பி|Bulbul','மைனா|Myna','நாரைமூக்கு|Crane'],
@@ -232,291 +252,214 @@ const WORD_RELATIONS = [
 ];
 
 
-// ================= GLOBAL STATE =================
-let category = '';
-let list = [];
-let i = 0;
-let score = 0;
-let relationMode = null;
-let relationQuizMode = null;
-let isRelationQuiz = false;
+  let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
-// ================= HELPERS =================
-function show(id){
-  ['home','mode','flash','quiz'].forEach(s => document.getElementById(s).classList.add('hidden'));
-  document.getElementById(id).classList.remove('hidden');
-}
+  function show(id){['home','mode','flash','quiz','exercise','result'].forEach(v=>document.getElementById(v).style.display='none');document.getElementById(id).style.display='block';}
+  function goHome(){show('home');}
+  window.onload=()=>show('home');
 
-function goHome(){
-  relationMode = null;
-  relationQuizMode = null;
-  isRelationQuiz = false;
-  i = 0;
-  show('home');
-}
+  function selectCategory(c){list=DATA[c].map(x=>{const[t,e]=x.split('|');return{ta:t,en:e};});i=0;modeTitle.textContent=c;show('mode');}
 
-function shuffle(a){ return a.sort(() => Math.random() - 0.5); }
-
-// ================= DATA GUARDS =================
-function hasCategoryData(){ return Array.isArray(list) && list.length > 0; }
-function hasRelationData(){ return Array.isArray(WORD_RELATIONS) && WORD_RELATIONS.length > 0; }
-
-// ================= CATEGORY =================
-function selectCategory(c){
-  if(!DATA[c]){
-    alert('Category data not available');
-    return;
+  function selectRelation(type){
+    list=WORD_RELATIONS.map(w=>({ta:w.ta,en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0]}));
+    i=0;modeTitle.textContent=type;show('mode');
   }
-  category = c;
-  relationMode = null;
-  relationQuizMode = null;
-  list = DATA[c].map(x => {
-    const [t, e] = x.split('|');
-    return { ta: t, en: e };
-  });
-  i = 0;
-  modeTitle.textContent = c.toUpperCase();
-  show('mode');
-}
 
-function selectRelation(type){
-  if(!hasRelationData()){
-    alert('Word relation data not available');
-    return;
-  }
-  relationMode = type;
-  relationQuizMode = type;
-  category = '';
-  i = 0;
-  modeTitle.textContent = type.toUpperCase();
-  show('mode');
-}
+  function startFlashcards(){show('flash');updateCard();}
+  function updateCard(){front.textContent=list[i].ta;back.textContent=list[i].en;flashCounter.textContent=`${i+1} / ${list.length}`;}
+  function next(){if(i<list.length-1){i++;updateCard();}}
+  function prev(){if(i>0){i--;updateCard();}}
+  function flipCard(){cardInner.classList.toggle('flipped');}
 
-// ================= FLASHCARDS =================
-function renderFlashcard(){
-  relationMode ? updateRelationCard() : updateCard();
-}
-
-function startFlashcards(){
-  i = 0;
-  show('flash');
-  flashTitle.textContent = relationMode ? relationMode.toUpperCase() : category.toUpperCase();
-  renderFlashcard();
-}
-
-function updateCard(){
-  if(!hasCategoryData() || !list[i]) return;
-  cardInner.classList.remove('flipped');
-  front.textContent = list[i].ta;
-  back.textContent = list[i].en;
-  counter.textContent = `${i + 1}/${list.length}`;
-}
-
-function updateRelationCard(){
-  if(!hasRelationData() || !WORD_RELATIONS[i]) return;
-  const item = WORD_RELATIONS[i];
-  cardInner.classList.remove('flipped');
-  front.textContent = `${item.ta} (${item.en})`;
-  const arr = relationMode === 'synonyms' ? item.synonyms.ta : item.antonyms.ta;
-  back.innerHTML = `${relationMode === 'synonyms' ? 'Synonyms' : 'Antonyms'}:<br>` +
-    arr.map(w => '• ' + w).join('<br>');
-  counter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
-}
-
-function next(){
-  const max = relationMode ? WORD_RELATIONS.length : list.length;
-  if(i < max - 1){ i++; renderFlashcard(); }
-}
-
-function prev(){
-  if(i > 0){ i--; renderFlashcard(); }
-}
-
-function flipCard(){ cardInner.classList.toggle('flipped'); }
-
-// ================= QUIZ =================
-function startQuiz(){
-  i = 0;
-  score = 0;
-  show('quiz');
-
-  if(relationQuizMode){
-    if(!hasRelationData()) return;
-    isRelationQuiz = true;
-    quizTitle.textContent = relationQuizMode.toUpperCase() + ' QUIZ';
-    loadRelationQuiz();
-  } else {
-    if(!hasCategoryData()) return;
-    isRelationQuiz = false;
-    quizTitle.textContent = category.toUpperCase();
-    loadQuiz();
-  }
-}
-
-function loadQuiz(){
-  if(!list[i]) return;
+  function startQuiz(){i=0;score=0;show('quiz');loadQuiz();}
+  function loadQuiz() {
   const q = list[i];
+  document.getElementById('quizNext').disabled = true;
+  document.getElementById('quizNext').textContent = 'Next';
+
+
+  // Question text
   question.textContent = q.ta;
+
+  // Counter
+  quizCounter.textContent = `${i + 1} / ${list.length}`;
+
+  // Reset UI
   options.innerHTML = '';
-  quizCounter.textContent = `${i + 1}/${list.length}`;
+  quizNext.disabled = true;
+  quizNext.textContent = 'Next';
 
   let answered = false;
-  let opts = [
+
+  // Build choices (correct answer always included)
+  const distractors = list
+    .filter(x => x.en !== q.en)
+    .map(x => x.en);
+
+  const choices = shuffle([
     q.en,
-    ...shuffle(list.filter(x => x.en !== q.en)).slice(0, 3).map(x => x.en)
-  ];
+    ...shuffle(distractors).slice(0, 2)
+  ]);
 
-  shuffle(opts).forEach(o => {
-    const b = document.createElement('button');
-    b.className = 'opt';
-    b.textContent = o;
-    b.onclick = () => {
-      if(answered) return;
-      answered = true;
-      document.querySelectorAll('.opt').forEach(btn => btn.disabled = true);
-      if(o === q.en){ score++; b.classList.add('correct'); }
-      else{
-        b.classList.add('wrong');
-        document.querySelectorAll('.opt').forEach(btn => {
-          if(btn.textContent === q.en) btn.classList.add('correct');
-        });
-      }
-    };
-    options.appendChild(b);
-  });
-}
-
-function loadRelationQuiz(){
-  if(!WORD_RELATIONS[i]) return;
-  const item = WORD_RELATIONS[i];
-  options.innerHTML = '';
-  quizCounter.textContent = `${i + 1}/${WORD_RELATIONS.length}`;
-
-  const correctList = relationQuizMode === 'synonyms'
-    ? item.synonyms.ta
-    : item.antonyms.ta;
-
-  const correct = correctList[0];
-  question.textContent = `Choose the ${relationQuizMode.slice(0,-1)} of: ${item.ta}`;
-
-  let distractors = WORD_RELATIONS
-    .flatMap(w => [...w.synonyms.ta, ...w.antonyms.ta])
-    .filter(w => w !== correct);
-
-  let optionsSet = shuffle([correct, ...shuffle(distractors).slice(0,3)]);
-  let answered = false;
-
-  optionsSet.forEach(opt => {
+  // Render options
+  choices.forEach(choice => {
     const btn = document.createElement('button');
     btn.className = 'opt';
-    btn.textContent = opt;
+    btn.textContent = choice;
+
     btn.onclick = () => {
-      if(answered) return;
+      if (answered) return;
       answered = true;
-      document.querySelectorAll('.opt').forEach(b => b.disabled = true);
-      if(opt === correct){ score++; btn.classList.add('correct'); }
-      else{
+
+      // Enable Next button ONLY after answering
+      document.getElementById('quizNext').disabled = false;
+
+    
+
+      // Disable all options
+      document
+        .querySelectorAll('#options .opt')
+        .forEach(b => b.disabled = true);
+
+      // Correct / Wrong logic
+      if (choice === q.en) {
+        score++;
+        btn.classList.add('correct');
+      } else {
         btn.classList.add('wrong');
-        document.querySelectorAll('.opt').forEach(b => {
-          if(b.textContent === correct) b.classList.add('correct');
-        });
+        document
+          .querySelectorAll('#options .opt')
+          .forEach(b => {
+            if (b.textContent === q.en) {
+              b.classList.add('correct');
+            }
+          });
+      }
+
+      // Last question → change button text
+      if (i === list.length - 1) {
+        quizNext.textContent = 'Finish';
       }
     };
+
     options.appendChild(btn);
   });
 }
 
-function nextQuiz(){
-  const max = isRelationQuiz ? WORD_RELATIONS.length : list.length;
-  if(i < max - 1){
-    i++;
-    isRelationQuiz ? loadRelationQuiz() : loadQuiz();
-  } else {
-    alert(`Score: ${score}/${max}`);
-    goHome();
-  }
-}
+  function nextQuiz() {
+  // Safety: don’t allow skipping
+  if (quizNext.disabled) return;
 
-// ================= BASIC SANITY TESTS =================
-console.assert(typeof DATA === 'object', 'DATA must be defined');
-console.assert(Array.isArray(WORD_RELATIONS), 'WORD_RELATIONS must be an array');
-
-
-// ================= AUDIO (ENGLISH FALLBACK – OPTION 1) =================
-let voice = null;
-let voicesReady = false;
-
-function loadVoices() {
-  const voices = speechSynthesis.getVoices();
-  if (!voices || !voices.length) return;
-
-  // Prefer Tamil if ever available, otherwise English (India), then any English
-  voice =
-    voices.find(v => v.lang === 'ta-IN') ||
-    voices.find(v => v.lang === 'en-IN') ||
-    voices.find(v => v.lang && v.lang.startsWith('en')) ||
-    voices[0] || null;
-
-  voicesReady = true;
-}
-
-speechSynthesis.onvoiceschanged = loadVoices;
-loadVoices();
-
-function speakText({ taText = '', enText = '' }) {
-  if (!taText && !enText) return;
-
-  if (!voicesReady) loadVoices();
-
-  speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance();
-
-  // If Tamil voice exists, speak Tamil
-  if (voice && voice.lang === 'ta-IN') {
-    utterance.text = taText;
-    utterance.lang = 'ta-IN';
-  } else {
-    // 🔑 OPTION 1: English meaning fallback
-    utterance.text = enText || taText;
-    utterance.lang = voice?.lang || 'en-IN';
+  // LAST QUESTION → SHOW RESULT
+  if (i === list.length - 1) {
+    showResult();
+    return;
   }
 
-  if (voice) utterance.voice = voice;
-  speechSynthesis.speak(utterance);
+  // Otherwise go to next question
+  i++;
+  loadQuiz();
 }
 
-// Bind buttons safely
-(function bindAudioButtons(){
-  const speakBtn = document.getElementById('speak');
-  const speakQuizBtn = document.getElementById('speakQuiz');
 
-  if (speakBtn) {
-    speakBtn.onclick = () => {
-      if (relationMode) {
-        // Synonyms / Antonyms: speak Tamil word itself
-        speakText({ taText: front.textContent, enText: front.textContent });
-      } else if (list[i]) {
-        // Categories: Tamil shown, English spoken
-        speakText({ taText: list[i].ta, enText: list[i].en });
+  function startExercise(){exerciseIndex=0;score=0;exerciseOrder=shuffle([...list]);show('exercise');loadExercise();}
+  function loadExercise() {
+  const item = exerciseOrder[exerciseIndex];
+  document.getElementById('exerciseNext').disabled = true;
+  document.getElementById('exerciseNext').textContent = 'Next';
+
+
+  // Question text
+  exerciseQuestion.textContent = `${item.en} = _____`;
+
+  // Counter
+  exerciseCounter.textContent =
+    `${exerciseIndex + 1} / ${exerciseOrder.length}`;
+
+  // Reset UI
+  exerciseOptions.innerHTML = '';
+  exerciseNext.disabled = true;
+  exerciseNext.textContent = 'Next';
+
+  let answered = false;
+
+  // Build choices (correct answer always included)
+  const distractors = list
+    .filter(x => x.ta !== item.ta)
+    .map(x => x.ta);
+
+  const choices = shuffle([
+    item.ta,
+    ...shuffle(distractors).slice(0, 2)
+  ]);
+
+  // Render options
+  choices.forEach(choice => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.textContent = choice;
+
+    btn.onclick = () => {
+      if (answered) return;
+      answered = true;
+
+      // Enable Next button ONLY after answering
+      document.getElementById('exerciseNext').disabled = false;
+
+      
+
+      // Disable all options
+      document
+        .querySelectorAll('#exerciseOptions .opt')
+        .forEach(b => b.disabled = true);
+
+      // Correct / Wrong logic
+      if (choice === item.ta) {
+        score++;
+        btn.classList.add('correct');
+      } else {
+        btn.classList.add('wrong');
+        document
+          .querySelectorAll('#exerciseOptions .opt')
+          .forEach(b => {
+            if (b.textContent === item.ta) {
+              b.classList.add('correct');
+            }
+          });
+      }
+
+      // Last question → change button text
+      if (exerciseIndex === exerciseOrder.length - 1) {
+        exerciseNext.textContent = 'Finish';
       }
     };
+
+    exerciseOptions.appendChild(btn);
+  });
+}
+
+  function nextExercise() {
+  // Safety: don’t allow skipping
+  if (exerciseNext.disabled) return;
+
+  // LAST QUESTION → SHOW RESULT
+  if (exerciseIndex === exerciseOrder.length - 1) {
+    resultText.textContent =
+      `Your score: ${score} / ${exerciseOrder.length}`;
+    show('result');
+    return;
   }
 
-  if (speakQuizBtn) {
-    speakQuizBtn.onclick = () => {
-      if (isRelationQuiz) {
-        speakText({ taText: question.textContent, enText: question.textContent });
-      } else if (list[i]) {
-        speakText({ taText: question.textContent, enText: list[i].en });
-      }
-    };
-  }
-})();
+  // Otherwise go to next question
+  exerciseIndex++;
+  loadExercise();
+}
 
-// ================= AUDIO TESTS =================
-console.assert('speechSynthesis' in window, 'Web Speech API not supported');
-console.assert(typeof SpeechSynthesisUtterance === 'function', 'SpeechSynthesisUtterance missing');
 
+  function showResult(){resultText.textContent=`Your score: ${score} / ${list.length}`;show('result');}
+  function retryActivity(){i=0;score=0;show('quiz');loadQuiz();}
+
+  console.assert(typeof selectCategory==='function');
 </script>
 </body>
 </html>
