@@ -7,35 +7,50 @@
   <style>
     body{font-family:Arial,sans-serif;background:#f5f7fa;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
     .app{background:#fff;padding:20px;border-radius:14px;width:380px;box-shadow:0 10px 25px rgba(0,0,0,.1);text-align:center}
-
     .hidden{display:none}
-
-    #flashCounter,#quizCounter,#exerciseCounter{font-size:14px;color:#6b7280;margin-bottom:8px;text-align:right}
-
+    #flashCounter,#quizCounter,#exerciseCounter,#matchCounter{font-size:14px;color:#6b7280;margin-bottom:8px;text-align:right}
     #result h2{margin-bottom:10px}
     #result p{font-size:18px;margin-bottom:20px}
-
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+
+    /* MATCH UX */
+    #match .grid{gap:12px}
+    #matchLeft,#matchRight{display:flex;flex-direction:column;gap:10px}
+    #matchLeft .opt,#matchRight .opt{width:100%;text-align:center;font-size:16px;padding:12px}
+    #matchLeft .opt{background:#eef2ff}
+    #matchRight .opt{background:#f0fdf4}
+    #match .opt.correct{background:#bbf7d0 !important;animation:fadeOut 0.6s ease forwards}
+    #match .opt.wrong{background:#fecaca !important;animation:shake 0.35s ease}
+
     .mode-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:20px}
     .mode-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:16px;font-size:18px;border-radius:14px}
-
     .btn{padding:14px;border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer}
     .animals{background:#4f46e5}.birds{background:#0284c7}.fruits{background:#16a34a}
     .verbs{background:#ca8a04}.household{background:#0f766e}.grocery{background:#7c3aed}
     .synonyms{background:#9333ea}.antonyms{background:#0ea5e9}
-
     .card{height:160px;background:#4f46e5;color:#fff;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;cursor:pointer;margin:12px 0}
     .inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
     .inner.flipped{transform:rotateY(180deg)}
     .side{position:absolute;width:100%;height:100%;backface-visibility:hidden;display:flex;align-items:center;justify-content:center}
     .back{background:#16a34a;transform:rotateY(180deg)}
-
     .options{display:flex;flex-direction:column;gap:10px;margin:14px 0}
     .opt{padding:10px;border-radius:8px;border:1px solid #c7d2fe;background:#eef2ff;color:#1f2937;font-size:15px;cursor:pointer}
     .correct{background:#bbf7d0;color:#065f46}
     .wrong{background:#fecaca;color:#7f1d1d}
-
     button{padding:8px 14px;border:none;border-radius:8px;background:#4f46e5;color:#fff;cursor:pointer}
+
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      50%{transform:translateX(6px)}
+      75%{transform:translateX(-6px)}
+      100%{transform:translateX(0)}
+    }
+
+    @keyframes fadeOut{
+      0%{opacity:1}
+      100%{opacity:0.45}
+    }
   </style>
 </head>
 <body>
@@ -65,6 +80,7 @@
       <button class="btn animals mode-btn" onclick="startFlashcards()">🃏 Flashcards</button>
       <button class="btn birds mode-btn" onclick="startQuiz()">🧠 Quiz</button>
       <button class="btn fruits mode-btn" onclick="startExercise()">✏️ Exercises</button>
+      <button class="btn verbs mode-btn" onclick="startMatch()">🧩 Match</button>
     </div>
   </div>
 
@@ -87,10 +103,8 @@
     <div id="quizCounter"></div>
     <button onclick="goHome()">🏠 Home</button>
     <h3 id="question"></h3>
-    <div id="options" class="options"></div>    
+    <div id="options" class="options"></div>
     <button id="quizNext" onclick="nextQuiz()" disabled>Next</button>
-
-
   </div>
 
   <!-- EXERCISE -->
@@ -98,8 +112,18 @@
     <div id="exerciseCounter"></div>
     <button onclick="goHome()">🏠 Home</button>
     <h3 id="exerciseQuestion"></h3>
-    <div id="exerciseOptions" class="options"></div>    
+    <div id="exerciseOptions" class="options"></div>
     <button id="exerciseNext" onclick="nextExercise()" disabled>Next</button>
+  </div>
+
+  <!-- MATCH -->
+  <div id="match" class="hidden">
+    <div id="matchCounter"></div>
+    <button onclick="goHome()">🏠 Home</button>
+    <div class="grid" style="margin-top:16px">
+      <div id="matchLeft"></div>
+      <div id="matchRight"></div>
+    </div>
   </div>
 
   <!-- RESULT -->
@@ -111,11 +135,10 @@
       <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
     </div>
   </div>
-
 </div>
 
 <script>
-  function shuffle(arr){return arr.slice().sort(()=>Math.random()-0.5);}
+  function shuffle(arr){ return arr.slice().sort(()=>Math.random()-0.5); }
 
   // ===== DATA =====
 const DATA={
@@ -252,214 +275,164 @@ const WORD_RELATIONS = [
 ];
 
 
+
   let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
-  function show(id){['home','mode','flash','quiz','exercise','result'].forEach(v=>document.getElementById(v).style.display='none');document.getElementById(id).style.display='block';}
-  function goHome(){show('home');}
-  window.onload=()=>show('home');
+  function show(id){
+    ['home','mode','flash','quiz','exercise','match','result'].forEach(v=>{
+      document.getElementById(v).style.display='none';
+    });
+    document.getElementById(id).style.display='block';
+  }
 
-  function selectCategory(c){list=DATA[c].map(x=>{const[t,e]=x.split('|');return{ta:t,en:e};});i=0;modeTitle.textContent=c;show('mode');}
+  function goHome(){ show('home'); }
+
+  window.onload = () => show('home');
+
+  function selectCategory(c){
+    list = DATA[c].map(x=>{ const[t,e]=x.split('|'); return {ta:t,en:e}; });
+    i=0;
+    modeTitle.textContent=c;
+    show('mode');
+  }
 
   function selectRelation(type){
-    list=WORD_RELATIONS.map(w=>({ta:w.ta,en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0]}));
-    i=0;modeTitle.textContent=type;show('mode');
+    list = WORD_RELATIONS.map(w=>({ ta:w.ta, en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0] }));
+    i=0;
+    modeTitle.textContent=type;
+    show('mode');
   }
 
-  function startFlashcards(){show('flash');updateCard();}
-  function updateCard(){front.textContent=list[i].ta;back.textContent=list[i].en;flashCounter.textContent=`${i+1} / ${list.length}`;}
-  function next(){if(i<list.length-1){i++;updateCard();}}
-  function prev(){if(i>0){i--;updateCard();}}
-  function flipCard(){cardInner.classList.toggle('flipped');}
+  function startFlashcards(){ show('flash'); updateCard(); }
+  function updateCard(){ front.textContent=list[i].ta; back.textContent=list[i].en; flashCounter.textContent=`${i+1} / ${list.length}`; }
+  function next(){ if(i<list.length-1){ i++; updateCard(); } }
+  function prev(){ if(i>0){ i--; updateCard(); } }
+  function flipCard(){ cardInner.classList.toggle('flipped'); }
 
-  function startQuiz(){i=0;score=0;show('quiz');loadQuiz();}
-  function loadQuiz() {
-  const q = list[i];
-  document.getElementById('quizNext').disabled = true;
-  document.getElementById('quizNext').textContent = 'Next';
+  function startQuiz(){ i=0; score=0; show('quiz'); loadQuiz(); }
 
-
-  // Question text
-  question.textContent = q.ta;
-
-  // Counter
-  quizCounter.textContent = `${i + 1} / ${list.length}`;
-
-  // Reset UI
-  options.innerHTML = '';
-  quizNext.disabled = true;
-  quizNext.textContent = 'Next';
-
-  let answered = false;
-
-  // Build choices (correct answer always included)
-  const distractors = list
-    .filter(x => x.en !== q.en)
-    .map(x => x.en);
-
-  const choices = shuffle([
-    q.en,
-    ...shuffle(distractors).slice(0, 2)
-  ]);
-
-  // Render options
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.textContent = choice;
-
-    btn.onclick = () => {
-      if (answered) return;
-      answered = true;
-
-      // Enable Next button ONLY after answering
-      document.getElementById('quizNext').disabled = false;
-
-    
-
-      // Disable all options
-      document
-        .querySelectorAll('#options .opt')
-        .forEach(b => b.disabled = true);
-
-      // Correct / Wrong logic
-      if (choice === q.en) {
-        score++;
-        btn.classList.add('correct');
-      } else {
-        btn.classList.add('wrong');
-        document
-          .querySelectorAll('#options .opt')
-          .forEach(b => {
-            if (b.textContent === q.en) {
-              b.classList.add('correct');
-            }
-          });
-      }
-
-      // Last question → change button text
-      if (i === list.length - 1) {
-        quizNext.textContent = 'Finish';
-      }
-    };
-
-    options.appendChild(btn);
-  });
-}
-
-  function nextQuiz() {
-  // Safety: don’t allow skipping
-  if (quizNext.disabled) return;
-
-  // LAST QUESTION → SHOW RESULT
-  if (i === list.length - 1) {
-    showResult();
-    return;
+  function loadQuiz(){
+    const q=list[i];
+    quizNext.disabled=true;
+    quizNext.textContent='Next';
+    question.textContent=q.ta;
+    quizCounter.textContent=`${i+1} / ${list.length}`;
+    options.innerHTML='';
+    let answered=false;
+    const distractors=list.filter(x=>x.en!==q.en).map(x=>x.en);
+    const choices=shuffle([q.en,...shuffle(distractors).slice(0,2)]);
+    choices.forEach(choice=>{
+      const btn=document.createElement('button');
+      btn.className='opt';
+      btn.textContent=choice;
+      btn.onclick=()=>{
+        if(answered) return;
+        answered=true;
+        quizNext.disabled=false;
+        document.querySelectorAll('#options .opt').forEach(b=>b.disabled=true);
+        if(choice===q.en){ score++; btn.classList.add('correct'); }
+        else{
+          btn.classList.add('wrong');
+          document.querySelectorAll('#options .opt').forEach(b=>{ if(b.textContent===q.en) b.classList.add('correct'); });
+        }
+        if(i===list.length-1) quizNext.textContent='Finish';
+      };
+      options.appendChild(btn);
+    });
   }
 
-  // Otherwise go to next question
-  i++;
-  loadQuiz();
-}
-
-
-  function startExercise(){exerciseIndex=0;score=0;exerciseOrder=shuffle([...list]);show('exercise');loadExercise();}
-  function loadExercise() {
-  const item = exerciseOrder[exerciseIndex];
-  document.getElementById('exerciseNext').disabled = true;
-  document.getElementById('exerciseNext').textContent = 'Next';
-
-
-  // Question text
-  exerciseQuestion.textContent = `${item.en} = _____`;
-
-  // Counter
-  exerciseCounter.textContent =
-    `${exerciseIndex + 1} / ${exerciseOrder.length}`;
-
-  // Reset UI
-  exerciseOptions.innerHTML = '';
-  exerciseNext.disabled = true;
-  exerciseNext.textContent = 'Next';
-
-  let answered = false;
-
-  // Build choices (correct answer always included)
-  const distractors = list
-    .filter(x => x.ta !== item.ta)
-    .map(x => x.ta);
-
-  const choices = shuffle([
-    item.ta,
-    ...shuffle(distractors).slice(0, 2)
-  ]);
-
-  // Render options
-  choices.forEach(choice => {
-    const btn = document.createElement('button');
-    btn.className = 'opt';
-    btn.textContent = choice;
-
-    btn.onclick = () => {
-      if (answered) return;
-      answered = true;
-
-      // Enable Next button ONLY after answering
-      document.getElementById('exerciseNext').disabled = false;
-
-      
-
-      // Disable all options
-      document
-        .querySelectorAll('#exerciseOptions .opt')
-        .forEach(b => b.disabled = true);
-
-      // Correct / Wrong logic
-      if (choice === item.ta) {
-        score++;
-        btn.classList.add('correct');
-      } else {
-        btn.classList.add('wrong');
-        document
-          .querySelectorAll('#exerciseOptions .opt')
-          .forEach(b => {
-            if (b.textContent === item.ta) {
-              b.classList.add('correct');
-            }
-          });
-      }
-
-      // Last question → change button text
-      if (exerciseIndex === exerciseOrder.length - 1) {
-        exerciseNext.textContent = 'Finish';
-      }
-    };
-
-    exerciseOptions.appendChild(btn);
-  });
-}
-
-  function nextExercise() {
-  // Safety: don’t allow skipping
-  if (exerciseNext.disabled) return;
-
-  // LAST QUESTION → SHOW RESULT
-  if (exerciseIndex === exerciseOrder.length - 1) {
-    resultText.textContent =
-      `Your score: ${score} / ${exerciseOrder.length}`;
-    show('result');
-    return;
+  function nextQuiz(){
+    if(quizNext.disabled) return;
+    if(i===list.length-1){ showResult(); return; }
+    i++; loadQuiz();
   }
 
-  // Otherwise go to next question
-  exerciseIndex++;
-  loadExercise();
-}
+  function startExercise(){ exerciseIndex=0; score=0; exerciseOrder=shuffle([...list]); show('exercise'); loadExercise(); }
 
+  function loadExercise(){
+    const item=exerciseOrder[exerciseIndex];
+    exerciseNext.disabled=true;
+    exerciseNext.textContent='Next';
+    exerciseQuestion.textContent=`${item.en} = _____`;
+    exerciseCounter.textContent=`${exerciseIndex+1} / ${exerciseOrder.length}`;
+    exerciseOptions.innerHTML='';
+    let answered=false;
+    const distractors=list.filter(x=>x.ta!==item.ta).map(x=>x.ta);
+    const choices=shuffle([item.ta,...shuffle(distractors).slice(0,2)]);
+    choices.forEach(choice=>{
+      const btn=document.createElement('button');
+      btn.className='opt';
+      btn.textContent=choice;
+      btn.onclick=()=>{
+        if(answered) return;
+        answered=true;
+        exerciseNext.disabled=false;
+        document.querySelectorAll('#exerciseOptions .opt').forEach(b=>b.disabled=true);
+        if(choice===item.ta){ score++; btn.classList.add('correct'); }
+        else{
+          btn.classList.add('wrong');
+          document.querySelectorAll('#exerciseOptions .opt').forEach(b=>{ if(b.textContent===item.ta) b.classList.add('correct'); });
+        }
+        if(exerciseIndex===exerciseOrder.length-1) exerciseNext.textContent='Finish';
+      };
+      exerciseOptions.appendChild(btn);
+    });
+  }
 
-  function showResult(){resultText.textContent=`Your score: ${score} / ${list.length}`;show('result');}
-  function retryActivity(){i=0;score=0;show('quiz');loadQuiz();}
+  function nextExercise(){
+    if(exerciseNext.disabled) return;
+    if(exerciseIndex===exerciseOrder.length-1){ resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
+    exerciseIndex++; loadExercise();
+  }
 
-  console.assert(typeof selectCategory==='function');
+  function showResult(){ resultText.textContent=`Your score: ${score} / ${list.length}`; show('result'); }
+
+  // MATCH
+  let matchPairs=[], selectedLeft=null, selectedRight=null, matchedCount=0;
+
+  function startMatch(){
+    matchedCount=0;
+    selectedLeft=null; selectedRight=null;
+    matchPairs=shuffle([...list]).slice(0,4);
+    matchLeft.innerHTML=''; matchRight.innerHTML='';
+    matchCounter.textContent=`0 / ${matchPairs.length}`;
+    matchPairs.forEach(pair=>{
+      const l=document.createElement('button'); l.className='opt'; l.textContent=pair.ta; l.onclick=()=>selectLeft(pair,l); matchLeft.appendChild(l);
+    });
+    shuffle(matchPairs).forEach(pair=>{
+      const r=document.createElement('button'); r.className='opt'; r.textContent=pair.en; r.onclick=()=>selectRight(pair,r); matchRight.appendChild(r);
+    });
+    show('match');
+  }
+
+  function selectLeft(pair,btn){ if(btn.disabled) return; clearSelection('left'); selectedLeft={pair,btn}; btn.classList.add('correct'); checkMatch(); }
+  function selectRight(pair,btn){ if(btn.disabled) return; clearSelection('right'); selectedRight={pair,btn}; btn.classList.add('correct'); checkMatch(); }
+
+  function clearSelection(side){
+    document.querySelectorAll(side==='left'?'#matchLeft .opt':'#matchRight .opt').forEach(b=>b.classList.remove('correct','wrong'));
+  }
+
+  function checkMatch(){
+    if(!selectedLeft||!selectedRight) return;
+    if(selectedLeft.pair.en===selectedRight.pair.en){
+      selectedLeft.btn.disabled=true; selectedRight.btn.disabled=true;
+      matchedCount++;
+      matchCounter.textContent=`${matchedCount} / ${matchPairs.length}`;
+      selectedLeft=null; selectedRight=null;
+      if(matchedCount===matchPairs.length){ resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
+    } else {
+      selectedLeft.btn.classList.add('wrong'); selectedRight.btn.classList.add('wrong');
+      setTimeout(()=>{
+        selectedLeft.btn.classList.remove('wrong','correct');
+        selectedRight.btn.classList.remove('wrong','correct');
+        selectedLeft=null; selectedRight=null;
+      },600);
+    }
+  }
+
+  function retryActivity(){ i=0; score=0; show('quiz'); loadQuiz(); }
+
+  console.assert(typeof selectCategory==='function','selectCategory exists');
 </script>
 </body>
 </html>
