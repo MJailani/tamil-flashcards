@@ -543,9 +543,15 @@ function changeProfile(){
 function updateHomeProfile(){
   const el = document.getElementById('currentProfileName');
   if(el){
-    el.textContent = getProfile();
+    el.textContent = formatProfileName(getProfile());
+
   }
 }
+function formatProfileName(name){
+  if(!name) return '';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 
   /* ===== PROGRESS TRACKING (GLOBAL) ===== */
 const PROGRESS_KEY = () => `tamil_progress_${getProfile()}`;
