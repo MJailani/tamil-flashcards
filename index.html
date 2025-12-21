@@ -440,6 +440,83 @@ function nextQuiz(){
 // ================= BASIC SANITY TESTS =================
 console.assert(typeof DATA === 'object', 'DATA must be defined');
 console.assert(Array.isArray(WORD_RELATIONS), 'WORD_RELATIONS must be an array');
+
+
+// ================= AUDIO (ENGLISH FALLBACK – OPTION 1) =================
+let voice = null;
+let voicesReady = false;
+
+function loadVoices() {
+  const voices = speechSynthesis.getVoices();
+  if (!voices || !voices.length) return;
+
+  // Prefer Tamil if ever available, otherwise English (India), then any English
+  voice =
+    voices.find(v => v.lang === 'ta-IN') ||
+    voices.find(v => v.lang === 'en-IN') ||
+    voices.find(v => v.lang && v.lang.startsWith('en')) ||
+    voices[0] || null;
+
+  voicesReady = true;
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speakText({ taText = '', enText = '' }) {
+  if (!taText && !enText) return;
+
+  if (!voicesReady) loadVoices();
+
+  speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance();
+
+  // If Tamil voice exists, speak Tamil
+  if (voice && voice.lang === 'ta-IN') {
+    utterance.text = taText;
+    utterance.lang = 'ta-IN';
+  } else {
+    // 🔑 OPTION 1: English meaning fallback
+    utterance.text = enText || taText;
+    utterance.lang = voice?.lang || 'en-IN';
+  }
+
+  if (voice) utterance.voice = voice;
+  speechSynthesis.speak(utterance);
+}
+
+// Bind buttons safely
+(function bindAudioButtons(){
+  const speakBtn = document.getElementById('speak');
+  const speakQuizBtn = document.getElementById('speakQuiz');
+
+  if (speakBtn) {
+    speakBtn.onclick = () => {
+      if (relationMode) {
+        // Synonyms / Antonyms: speak Tamil word itself
+        speakText({ taText: front.textContent, enText: front.textContent });
+      } else if (list[i]) {
+        // Categories: Tamil shown, English spoken
+        speakText({ taText: list[i].ta, enText: list[i].en });
+      }
+    };
+  }
+
+  if (speakQuizBtn) {
+    speakQuizBtn.onclick = () => {
+      if (isRelationQuiz) {
+        speakText({ taText: question.textContent, enText: question.textContent });
+      } else if (list[i]) {
+        speakText({ taText: question.textContent, enText: list[i].en });
+      }
+    };
+  }
+})();
+
+// ================= AUDIO TESTS =================
+console.assert('speechSynthesis' in window, 'Web Speech API not supported');
+console.assert(typeof SpeechSynthesisUtterance === 'function', 'SpeechSynthesisUtterance missing');
+
 </script>
 </body>
 </html>
