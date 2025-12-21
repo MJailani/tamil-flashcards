@@ -177,8 +177,17 @@
   <!-- PROGRESS -->
   <div id="progress" class="hidden">
  <h2>📊 <span id="profileLabel"></span>’s Progress</h2>
-
   <p style="color:#6b7280;margin-top:-6px">Keep going! Every attempt makes you better ⭐</p>
+ <div class="p-card streak" style="background:#fff1f2">
+  <div class="p-icon">🔥</div>
+  <div>
+    <h4>Daily Streak</h4>
+    <p><b><span id="pStreak">0</span></b> days in a row</p>
+  </div>
+ </div>
+
+
+
 
   <div class="progress-cards">
     <div class="p-card quiz">
@@ -432,7 +441,7 @@ const WORD_RELATIONS = [
 
   function nextQuiz(){
     if(quizNext.disabled) return;
-    if(i===list.length-1){ recordQuiz(score); showResult(); return; }
+    if(i===list.length-1){ recordQuiz(score);updateStreak(); showResult(); return; }
     i++; loadQuiz();
   }
 
@@ -470,7 +479,7 @@ const WORD_RELATIONS = [
 
   function nextExercise(){
     if(exerciseNext.disabled) return;
-    if(exerciseIndex===exerciseOrder.length-1){recordExercise(score); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
+    if(exerciseIndex===exerciseOrder.length-1){recordExercise(score);updateStreak(); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
     exerciseIndex++; loadExercise();
   }
 
@@ -508,7 +517,7 @@ const WORD_RELATIONS = [
       matchedCount++;
       matchCounter.textContent=`${matchedCount} / ${matchPairs.length}`;
       selectedLeft=null; selectedRight=null;
-      if(matchedCount===matchPairs.length){ recordMatch(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
+      if(matchedCount===matchPairs.length){ recordMatch();updateStreak(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
     } else {
       selectedLeft.btn.classList.add('wrong'); selectedRight.btn.classList.add('wrong');
       setTimeout(()=>{
@@ -569,6 +578,39 @@ function saveProgress(p){
   localStorage.setItem(PROGRESS_KEY(), JSON.stringify(p));
 }
 
+function today(){
+  return new Date().toISOString().slice(0,10); // YYYY-MM-DD
+}
+
+function daysBetween(d1, d2){
+  return Math.floor(
+    (new Date(d2) - new Date(d1)) / (1000 * 60 * 60 * 24)
+  );
+}
+
+function updateStreak(){
+  const p = getProgress();
+  const t = today();
+
+  if(!p.streak){
+    p.streak = { count: 1, lastDate: t };
+  } else {
+    const diff = daysBetween(p.streak.lastDate, t);
+
+    if(diff === 1){
+      p.streak.count++;
+      p.streak.lastDate = t;
+    } else if(diff > 1){
+      p.streak.count = 1;
+      p.streak.lastDate = t;
+    }
+    // diff === 0 → same day, do nothing
+  }
+
+  saveProgress(p);
+}
+
+
 function recordQuiz(score){
   const p = getProgress();
   p.quiz.attempts++;
@@ -605,6 +647,8 @@ function openProgress(){
   document.getElementById('profileLabel').textContent = getProfile();
 
   const p = getProgress();
+  const s = p.streak ? p.streak.count : 0;
+  document.getElementById('pStreak').textContent = s;
 
   document.getElementById('pQuizAttempts').textContent = p.quiz.attempts;
   document.getElementById('pQuizBest').textContent = p.quiz.best;
