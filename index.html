@@ -78,6 +78,9 @@
         Change
       </button>
     </div>
+    <div style="font-size:13px;margin-top:4px" id="homePracticeToday">
+            ❌ Not practiced today
+    </div>
     <!-- HOME PROGRESS SUMMARY -->
     <div id="homeProgress"
         style="margin:10px 0;padding:10px;border-radius:12px;
@@ -85,6 +88,8 @@
       <div style="display:flex;justify-content:space-between;align-items:center">
         <div>
           <div style="font-size:14px">🔥 <b><span id="homeStreak">0</span>-day streak</b></div>
+          
+
           <div style="font-size:13px;margin-top:4px">
             ⭐ Best Quiz: <b><span id="homeBestQuiz">0</span></b>
           </div>
@@ -204,6 +209,7 @@
     <p><b><span id="pStreak">0</span></b> days in a row</p>
   </div>
  </div>
+
 
 
 
@@ -611,13 +617,32 @@ function daysBetween(d1, d2){
   );
 }
 
+function practicedToday(){
+  const p = getProgress();
+  if(!p.streak || !p.streak.lastDate) return false;
+  return p.streak.lastDate === today();
+}
+
+
 function updateHomeProgress(){
   const p = getProgress();
+
   document.getElementById('homeStreak').textContent =
     p.streak ? p.streak.count : 0;
+
   document.getElementById('homeBestQuiz').textContent =
     p.quiz ? p.quiz.best : 0;
+
+  const practicedEl = document.getElementById('homePracticeToday');
+  if(practicedToday()){
+    practicedEl.textContent = '✅ Practiced today';
+    practicedEl.style.color = '#166534'; // green
+  } else {
+    practicedEl.textContent = '❌ Not practiced today';
+    practicedEl.style.color = '#7f1d1d'; // red
+  }
 }
+
 
 
 function updateStreak(){
