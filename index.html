@@ -89,6 +89,23 @@
       justify-content:center;
       margin-top:20px;
     }
+    #parentDashboard{
+      color:#111;     
+      text-align:left;
+    }
+
+    #parentDashboard h3{
+      margin-top:16px;
+    }
+
+    .pd-card{
+       color:#111;
+      background:#f5f7fa;
+      padding:12px;
+      border-radius:10px;
+      margin-bottom:10px;
+    }
+
 
 
   </style>
@@ -108,6 +125,8 @@
       >
         Change
       </button>
+      <button onclick="showParentDashboard()">👨‍👩‍👧 Parent View</button>
+
     </div>
     <!-- LEVEL INDICATOR -->
     <div id="homeLevel"
@@ -301,10 +320,6 @@
   </div>
  </div>
 
-
-
-
-
   <div class="progress-cards">
     <div class="p-card quiz">
       <div class="p-icon">🧠</div>
@@ -338,6 +353,19 @@
     <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
   </div>
 </div>
+
+ <!-- Parent Dashboard -->
+  <div id="parentDashboard" class="hidden">
+    <h2>👨‍👩‍👧 Parent Dashboard</h2>
+
+    <div id="pdProfile"></div>
+    <div id="pdOverall"></div>
+
+    <h3 style="margin-top:20px">📂 Category Progress</h3>
+    <div id="pdCategories"></div>
+
+    <button onclick="goHome()">🏠 Home</button>
+  </div>
 
   
 </div>
@@ -1200,7 +1228,8 @@ function updateHomeCategoryProgress(){
       'exercise',
       'match',
       'progress',
-      'resultCard'
+      'resultCard',
+      'parentDashboard' 
     ].forEach(v =>
       document.getElementById(v)?.classList.add('hidden')
     );
@@ -1263,12 +1292,6 @@ function updateHomeCategoryProgress(){
 }
 
 
-  /*function selectRelation(type){
-    list = WORD_RELATIONS.map(w=>({ ta:w.ta, en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0] }));
-    i=0;
-    modeTitle.textContent=type;
-    show('mode');
-  }*/
  function selectRelation(type){
   currentCategory = type; // 'synonyms' or 'antonyms'
   const level = getCurrentLevel();
@@ -1330,12 +1353,6 @@ function updateHomeCategoryProgress(){
       options.appendChild(btn);
     });
   }
-
- /* function nextQuiz(){
-    if(quizNext.disabled) return;
-    if(i===list.length-1){if(isNewBest('quiz', score)) showNewBest(); recordQuiz(score);updateStreak();checkLevelUnlock(); showResult(); return; }
-    i++; loadQuiz();
-  }*/
 
   function nextQuiz(){
     if(quizNext.disabled) return;
@@ -1420,11 +1437,7 @@ function updateHomeCategoryProgress(){
     });
   }
 
-  /*function nextExercise(){
-    if(exerciseNext.disabled) return;
-    if(exerciseIndex===exerciseOrder.length-1){if(isNewBest('exercise', score)) showNewBest(); recordExercise(score);updateStreak();checkLevelUnlock(); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
-    exerciseIndex++; loadExercise();
-  }*/
+
  function nextExercise(){
     if(exerciseNext.disabled) return;
 
@@ -1503,23 +1516,6 @@ function updateHomeCategoryProgress(){
     document.querySelectorAll(side==='left'?'#matchLeft .opt':'#matchRight .opt').forEach(b=>b.classList.remove('correct','wrong'));
   }
 
-  /*function checkMatch(){
-    if(!selectedLeft||!selectedRight) return;
-    if(selectedLeft.pair.en===selectedRight.pair.en){
-      selectedLeft.btn.disabled=true; selectedRight.btn.disabled=true;
-      matchedCount++;
-      matchCounter.textContent=`${matchedCount} / ${matchPairs.length}`;
-      selectedLeft=null; selectedRight=null;
-      if(matchedCount===matchPairs.length){ recordMatch();updateStreak();checkLevelUnlock(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
-    } else {
-      selectedLeft.btn.classList.add('wrong'); selectedRight.btn.classList.add('wrong');
-      setTimeout(()=>{
-        selectedLeft.btn.classList.remove('wrong','correct');
-        selectedRight.btn.classList.remove('wrong','correct');
-        selectedLeft=null; selectedRight=null;
-      },600);
-    }
-  }*/
  function checkMatch(){
   if(!selectedLeft || !selectedRight) return;
 
@@ -1733,6 +1729,48 @@ function openLevelSelector(){
 
 function closeLevelSelector(){
   document.getElementById('levelSelector').classList.add('hidden');
+}
+
+function showParentDashboard(){
+  const profile = getProfile();
+  const progress = getProgress();
+  const catProgress = getCategoryProgress();
+
+  // Profile section
+  document.getElementById('pdProfile').innerHTML = `
+    <div class="pd-card">
+      <b>Name:</b> ${profile}<br>
+      <b>Current Level:</b> ${getCurrentLevel()}<br>
+      <b>Daily Streak:</b>  ${progress.streak?.count || 0} days
+    </div>
+  `;
+
+  // Overall progress
+  document.getElementById('pdOverall').innerHTML = `
+    <div class="pd-card">
+      🧠 Quiz attempts: ${progress.quiz.attempts}<br>
+      ✏️ Fill attempts: ${progress.exercise.attempts}<br>
+      🧩 Match plays: ${progress.match.attempts}
+    </div>
+  `;
+
+  // Category breakdown
+  const catEl = document.getElementById('pdCategories');
+  catEl.innerHTML = '';
+
+  Object.keys(catProgress).forEach(cat => {
+    const c = catProgress[cat];
+    catEl.innerHTML += `
+      <div class="pd-card">
+        <b>${categoryLabel(cat)}</b><br>
+        🧠 Quiz: ${c.quiz?.attempts || 0} | Best ${c.quiz?.best || '-'}<br>
+        ✏️ Fill: ${c.exercise?.attempts || 0} | Best ${c.exercise?.best || '-'}<br>
+        🧩 Match: ${c.match?.attempts || 0}
+      </div>
+    `;
+  });
+
+  show('parentDashboard');
 }
 
 function showResultCard({ title, summaryHtml }){
