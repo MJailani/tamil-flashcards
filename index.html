@@ -78,6 +78,19 @@
         Change
       </button>
     </div>
+    <!-- LEVEL INDICATOR -->
+    <div id="homeLevel"
+        style="margin:6px 0;font-size:14px;color:#374151">
+      Level:
+      <b id="currentLevelLabel">⭐ Beginner</b>
+      <button
+        style="margin-left:6px;padding:4px 8px;font-size:12px;border-radius:8px;background:#e5e7eb"
+        onclick="openLevelSelector()"
+      >
+        Change
+      </button>
+    </div>
+
     <div style="font-size:13px;margin-top:4px" id="homePracticeToday">
             ❌ Not practiced today
     </div>
@@ -180,6 +193,17 @@
       <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
     </div>
   </div>
+    <!-- LEVEL SELECTOR -->
+  <div id="levelSelector" class="hidden"
+     style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000">
+  <div style="background:#fff;padding:20px;border-radius:16px;
+              width:280px;margin:20vh auto;text-align:center">
+    <h3>Select Level</h3>
+    <div id="levelOptions" style="margin-top:14px"></div>
+    <button style="margin-top:12px" onclick="closeLevelSelector()">Cancel</button>
+  </div>
+</div>
+
   <!-- PROFILE -->
 <div id="profile" class="hidden">
   <h2>👤 Who is learning today?</h2>
@@ -389,6 +413,8 @@ const WORD_RELATIONS = [
 ];
 
 
+  const QUIZ_TOTAL = 20;
+  const EXERCISE_TOTAL = 20;
 
   let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
@@ -405,6 +431,7 @@ const WORD_RELATIONS = [
   window.onload = () => {
   if(getProfile()){
     show('home');
+    updateHomeLevel();
     updateHomeProfile();
     updateHomeProgress();
 
@@ -468,7 +495,7 @@ const WORD_RELATIONS = [
 
   function nextQuiz(){
     if(quizNext.disabled) return;
-    if(i===list.length-1){if(isNewBest('quiz', score)) showNewBest(); recordQuiz(score);updateStreak(); showResult(); return; }
+    if(i===list.length-1){if(isNewBest('quiz', score)) showNewBest(); recordQuiz(score);updateStreak();checkLevelUnlock(); showResult(); return; }
     i++; loadQuiz();
   }
 
@@ -506,7 +533,7 @@ const WORD_RELATIONS = [
 
   function nextExercise(){
     if(exerciseNext.disabled) return;
-    if(exerciseIndex===exerciseOrder.length-1){if(isNewBest('exercise', score)) showNewBest(); recordExercise(score);updateStreak(); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
+    if(exerciseIndex===exerciseOrder.length-1){if(isNewBest('exercise', score)) showNewBest(); recordExercise(score);updateStreak();checkLevelUnlock(); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
     exerciseIndex++; loadExercise();
   }
 
@@ -544,7 +571,7 @@ const WORD_RELATIONS = [
       matchedCount++;
       matchCounter.textContent=`${matchedCount} / ${matchPairs.length}`;
       selectedLeft=null; selectedRight=null;
-      if(matchedCount===matchPairs.length){ recordMatch();updateStreak(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
+      if(matchedCount===matchPairs.length){ recordMatch();updateStreak();checkLevelUnlock(); resultText.textContent=`You matched ${matchedCount} / ${matchPairs.length}`; show('result'); }
     } else {
       selectedLeft.btn.classList.add('wrong'); selectedRight.btn.classList.add('wrong');
       setTimeout(()=>{
@@ -590,6 +617,130 @@ function formatProfileName(name){
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+function levelKey(){
+  return `tamil_level_${getProfile()}`;
+}
+
+function getLevelState(){
+  const raw = localStorage.getItem(levelKey());
+  if(raw) return JSON.parse(raw);
+
+  // default for new profile
+  const state = { current: 1, unlocked: [1] };
+  localStorage.setItem(levelKey(), JSON.stringify(state));
+  return state;
+}
+
+function saveLevelState(state){
+  localStorage.setItem(levelKey(), JSON.stringify(state));
+}
+
+function getCurrentLevel(){
+  return getLevelState().current;
+}
+
+function setCurrentLevel(level){
+  const state = getLevelState();
+  if(state.unlocked.includes(level)){
+    state.current = level;
+    saveLevelState(state);
+  }
+}
+
+function isLevelUnlocked(level){
+  return getLevelState().unlocked.includes(level);
+}
+
+function checkLevelUnlock(){
+  const progress = getProgress();
+  const levelState = getLevelState();
+  const current = levelState.current;
+  const nextLevel = current + 1;
+
+  // Already unlocked → nothing to do
+  if(levelState.unlocked.includes(nextLevel)) return false;
+
+  // Practice checks
+  if(progress.quiz.attempts < 2) return false;
+  if(progress.exercise.attempts < 2) return false;
+  if(progress.match.attempts < 1) return false;
+
+  // Mastery checks
+  const quizPercent = percent(progress.quiz.best, QUIZ_TOTAL);
+  const exercisePercent = percent(progress.exercise.best, EXERCISE_TOTAL);
+
+  if(quizPercent < 70) return false;
+  if(exercisePercent < 70) return false;
+
+  // Consistency check
+  if(!progress.streak || progress.streak.count < 3) return false;
+
+  // ✅ Unlock next level
+  levelState.unlocked.push(nextLevel);
+  saveLevelState(levelState);
+  showLevelUnlocked(nextLevel);
+
+  return true; // unlocked now
+}
+
+function showLevelUnlocked(level){
+  const box = document.createElement('div');
+  box.innerHTML = `
+    🎉 <b>Level ${level} Unlocked!</b><br>
+    You can switch levels anytime from Home.
+  `;
+  box.style.position = 'fixed';
+  box.style.top = '50%';
+  box.style.left = '50%';
+  box.style.transform = 'translate(-50%, -50%)';
+  box.style.background = '#ecfeff';
+  box.style.color = '#0f172a';
+  box.style.padding = '18px 22px';
+  box.style.borderRadius = '14px';
+  box.style.textAlign = 'center';
+  box.style.boxShadow = '0 10px 30px rgba(0,0,0,.2)';
+  box.style.zIndex = '10000';
+
+  document.body.appendChild(box);
+
+  setTimeout(() => box.remove(), 2500);
+}
+function levelName(level){
+  if(level === 1) return '⭐ Beginner';
+  if(level === 2) return '⭐⭐ Intermediate';
+  if(level === 3) return '⭐⭐⭐ Advanced';
+  return `Level ${level}`;
+}
+function updateHomeLevel(){
+  document.getElementById('currentLevelLabel')
+    .textContent = levelName(getCurrentLevel());
+}
+
+function openLevelSelector(){
+  const state = getLevelState();
+  const box = document.getElementById('levelOptions');
+  box.innerHTML = '';
+
+  state.unlocked.forEach(level => {
+    const btn = document.createElement('button');
+    btn.textContent = levelName(level);
+    btn.style.display = 'block';
+    btn.style.width = '100%';
+    btn.style.margin = '8px 0';
+    btn.onclick = () => {
+      setCurrentLevel(level);
+      updateHomeLevel();
+      closeLevelSelector();
+    };
+    box.appendChild(btn);
+  });
+
+  document.getElementById('levelSelector').classList.remove('hidden');
+}
+
+function closeLevelSelector(){
+  document.getElementById('levelSelector').classList.add('hidden');
+}
 
   /* ===== PROGRESS TRACKING (GLOBAL) ===== */
 const PROGRESS_KEY = () => `tamil_progress_${getProfile()}`;
@@ -605,6 +756,11 @@ function getProgress(){
 
 function saveProgress(p){
   localStorage.setItem(PROGRESS_KEY(), JSON.stringify(p));
+}
+
+function percent(score, total){
+  if(total === 0) return 0;
+  return Math.round((score / total) * 100);
 }
 
 function today(){
