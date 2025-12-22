@@ -105,6 +105,15 @@
       border-radius:10px;
       margin-bottom:10px;
     }
+    .util-btn{
+      padding:4px 10px;
+      font-size:12px;
+      border-radius:8px;
+      background:#f1f5f9;
+      color:#475569;
+      border:1px solid #e2e8f0;
+      cursor:pointer;
+    }
 
 
 
@@ -119,13 +128,8 @@
     <!-- CURRENT PROFILE -->
     <div id="homeProfile" style="margin:8px 0;color:#374151;font-size:14px">
       👤 <b id="currentProfileName"></b>
-      <button
-        style="margin-left:8px;padding:4px 10px;font-size:12px;border-radius:8px;background:#e5e7eb;color:#111827"
-        onclick="changeProfile()"
-      >
-        Change
-      </button>
-      <button onclick="showParentDashboard()">👨‍👩‍👧 Parent View</button>
+      <button onclick="changeProfile()" class="util-btn">Change</button>
+      <button onclick="showParentDashboard()" class="util-btn">👨‍👩‍👧 Parent View</button>
 
     </div>
     <!-- LEVEL INDICATOR -->
@@ -133,12 +137,7 @@
         style="margin:6px 0;font-size:14px;color:#374151">
       Level:
       <b id="currentLevelLabel">⭐ Beginner</b>
-      <button
-        style="margin-left:6px;padding:4px 8px;font-size:12px;border-radius:8px;background:#e5e7eb"
-        onclick="openLevelSelector()"
-      >
-        Change
-      </button>
+      <button class="util-btn" onclick="openLevelSelector()">Change</button>      
     </div>
 
     <div style="font-size:13px;margin-top:4px" id="homePracticeToday">
