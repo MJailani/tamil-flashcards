@@ -279,17 +279,307 @@
   function shuffle(arr){ return arr.slice().sort(()=>Math.random()-0.5); }
 
   // ===== DATA =====
-const DATA={
+/*const DATA={
  animals:['நாய்|Dog','பூனை|Cat','யானை|Elephant','சிங்கம்|Lion','புலி|Tiger','மாடு|Cow','குதிரை|Horse','ஆடு|Goat','செம்மறியாடு|Sheep','குரங்கு|Monkey','கரடி|Bear','நரி|Fox','மான்|Deer','ஒட்டகம்|Camel','பன்றி|Pig','எலி|Mouse','முயல்|Rabbit','நீர்யானை|Hippopotamus','முதலை|Crocodile','பாம்பு|Snake'],
  birds:['காகம்|Crow','கிளி|Parrot','மயில்|Peacock','சிட்டுக்குருவி|Sparrow','ஆந்தை|Owl','புறா|Pigeon','வாத்து|Duck','கோழி|Hen','சேவல்|Rooster','குயில்|Cuckoo','பருந்து|Eagle','கழுகு|Vulture','நாரை|Stork','மீன்கொத்தி|Kingfisher','அன்னம்|Swan','வான்கோழி|Turkey','பென்குயின்|Penguin','தும்பி|Bulbul','மைனா|Myna','நாரைமூக்கு|Crane'],
  fruits:['ஆப்பிள்|Apple','வாழைப்பழம்|Banana','மாம்பழம்|Mango','திராட்சை|Grapes','ஆரஞ்சு|Orange','எலுமிச்சை|Lemon','பப்பாளி|Papaya','கொய்யா|Guava','மாதுளை|Pomegranate','அன்னாசி|Pineapple','ஸ்ட்ராபெரி|Strawberry','பேரிக்காய்|Pear','சப்போட்டா|Sapota','நாவற்பழம்|Jamun','ஆமணக்கு|Fig','பிளம்|Plum','செர்ரி|Cherry','பீச்|Peach','பேரிச்சை|Date','கிவி|Kiwi'],
  verbs:['படி|Read','எழுது|Write','ஓடு|Run','நட|Walk','சாப்பிடு|Eat','குடி|Drink','பேசு|Speak','கேள்|Listen','பார்|See','எடு|Take','கொடு|Give','வா|Come','போ|Go','உட்கார்|Sit','நில்|Stand','தூங்கு|Sleep','எழு|Wake','விளையாடு|Play','வேலைசெய்|Work','சிந்தி|Think'],
  household:['மேஜை|Table','நாற்காலி|Chair','கட்டில்|Bed','அலமாரி|Cupboard','கதவு|Door','ஜன்னல்|Window','விளக்கு|Lamp','மின்விசிறி|Fan','டிவி|Television','ஃப்ரிட்ஜ்|Refrigerator','அடுப்பு|Stove','பாத்திரம்|Vessel','கரண்டி|Spoon','தட்டு|Plate','கிண்ணம்|Bowl','துடைப்பம்|Broom','கடிகாரம்|Clock','தலையணை|Pillow','போர்வை|Blanket','தொலைபேசி|Telephone'],
  grocery:['அரிசி|Rice','கோதுமை|Wheat','சர்க்கரை|Sugar','உப்பு|Salt','எண்ணெய்|Oil','பால்|Milk','தயிர்|Curd','வெண்ணெய்|Butter','முட்டை|Egg','பருப்பு|Lentils','கடலை|Peanut','பாசிப்பயறு|Green gram','உருளைக்கிழங்கு|Potato','வெங்காயம்|Onion','தக்காளி|Tomato','மிளகாய்|Chilli','மஞ்சள்|Turmeric','மிளகு|Pepper','சீரகம்|Cumin','கொத்தமல்லி|Coriander']
+};*/
+const LEVEL_DATA={
+  1:{
+    animals:['நாய்|Dog','பூனை|Cat','யானை|Elephant','சிங்கம்|Lion','புலி|Tiger','மாடு|Cow','குதிரை|Horse','ஆடு|Goat','செம்மறியாடு|Sheep','குரங்கு|Monkey','கரடி|Bear','நரி|Fox','மான்|Deer','ஒட்டகம்|Camel','பன்றி|Pig','எலி|Mouse','முயல்|Rabbit','நீர்யானை|Hippopotamus','முதலை|Crocodile','பாம்பு|Snake'],
+    birds:['காகம்|Crow','கிளி|Parrot','மயில்|Peacock','சிட்டுக்குருவி|Sparrow','ஆந்தை|Owl','புறா|Pigeon','வாத்து|Duck','கோழி|Hen','சேவல்|Rooster','குயில்|Cuckoo','பருந்து|Eagle','கழுகு|Vulture','நாரை|Stork','மீன்கொத்தி|Kingfisher','அன்னம்|Swan','வான்கோழி|Turkey','பென்குயின்|Penguin','தும்பி|Bulbul','மைனா|Myna','நாரைமூக்கு|Crane'],
+    fruits:['ஆப்பிள்|Apple','வாழைப்பழம்|Banana','மாம்பழம்|Mango','திராட்சை|Grapes','ஆரஞ்சு|Orange','எலுமிச்சை|Lemon','பப்பாளி|Papaya','கொய்யா|Guava','மாதுளை|Pomegranate','அன்னாசி|Pineapple','ஸ்ட்ராபெரி|Strawberry','பேரிக்காய்|Pear','சப்போட்டா|Sapota','நாவற்பழம்|Jamun','ஆமணக்கு|Fig','பிளம்|Plum','செர்ரி|Cherry','பீச்|Peach','பேரிச்சை|Date','கிவி|Kiwi'],
+    verbs:['படி|Read','எழுது|Write','ஓடு|Run','நட|Walk','சாப்பிடு|Eat','குடி|Drink','பேசு|Speak','கேள்|Listen','பார்|See','எடு|Take','கொடு|Give','வா|Come','போ|Go','உட்கார்|Sit','நில்|Stand','தூங்கு|Sleep','எழு|Wake','விளையாடு|Play','வேலைசெய்|Work','சிந்தி|Think'],
+    household:['மேஜை|Table','நாற்காலி|Chair','கட்டில்|Bed','அலமாரி|Cupboard','கதவு|Door','ஜன்னல்|Window','விளக்கு|Lamp','மின்விசிறி|Fan','டிவி|Television','ஃப்ரிட்ஜ்|Refrigerator','அடுப்பு|Stove','பாத்திரம்|Vessel','கரண்டி|Spoon','தட்டு|Plate','கிண்ணம்|Bowl','துடைப்பம்|Broom','கடிகாரம்|Clock','தலையணை|Pillow','போர்வை|Blanket','தொலைபேசி|Telephone'],
+    grocery:['அரிசி|Rice','கோதுமை|Wheat','சர்க்கரை|Sugar','உப்பு|Salt','எண்ணெய்|Oil','பால்|Milk','தயிர்|Curd','வெண்ணெய்|Butter','முட்டை|Egg','பருப்பு|Lentils','கடலை|Peanut','பாசிப்பயறு|Green gram','உருளைக்கிழங்கு|Potato','வெங்காயம்|Onion','தக்காளி|Tomato','மிளகாய்|Chilli','மஞ்சள்|Turmeric','மிளகு|Pepper','சீரகம்|Cumin','கொத்தமல்லி|Coriander']
+  },
+  2:{
+    animals:[
+      'சிறுத்தை|Leopard',
+      'சம்பல் கரடி|Sloth Bear',
+      'காட்டெருமை|Wild Buffalo',
+      'முள்ளம்பன்றி|Porcupine',
+      'கருங்குரங்கு|Gorilla',
+      'பனிக்கரடி|Polar Bear',
+      'காட்டுப்பன்றி|Wild Boar',
+      'கங்காரு|Kangaroo',
+      'நீர்நாய்|Otter',
+      'காட்டுநாய்|Wolf',
+      'பல்லி|Lizard',
+      'நீல திமிங்கிலம்|Blue Whale',
+      'டால்பின்|Dolphin',
+      'சுறா|Shark',
+      'ஆர்மடில்லோ|Armadillo',
+      'காட்டுப் பூனை|Lynx',
+      'காடெருமை|Bison',
+      'காட்டுக் குதிரை|Zebra',
+      'ஓநாய்|Jackal',
+      'மலை ஆடு|Mountain Goat'
+    ],
+
+    birds:[
+      'மயூரி|Peahen',
+      'சாம்பல் கிளி|African Grey Parrot',
+      'பனிப்பறவை|Snowy Owl',
+      'கடல் காக்கை|Seagull',
+      'வெள்ளை நாரை|Egret',
+      'மலை கழுகு|Golden Eagle',
+      'நீல ஜெய்|Blue Jay',
+      'சிகப்பு கார்டினல்|Cardinal',
+      'தீப்பறவை|Flamingo',
+      'காட்டு வாத்து|Wild Duck',
+      'கருப்பு அன்னம்|Black Swan',
+      'மரங்கொத்தி|Woodpecker',
+      'இரவு பருந்து|Night Hawk',
+      'பனிப்புறா|Snow Pigeon',
+      'நீல குயில்|Asian Koel',
+      'சாம்பல் கொக்கு|Heron',
+      'மலை கோழி|Mountain Quail',
+      'காட்டுக் கோழி|Jungle Fowl',
+      'பறக்கும் நரி|Flying Fox',
+      'மழைப்பறவை|Rain Bird'
+    ],
+
+    fruits:[
+      'ப்ளூபெரி|Blueberry',
+      'ராஸ்பெரி|Raspberry',
+      'பிளாக்பெரி|Blackberry',
+      'டிராகன் பழம்|Dragon Fruit',
+      'அவகாடோ|Avocado',
+      'கிரேப் பழம்|Grapefruit',
+      'பேஷன் பழம்|Passion Fruit',
+      'லிச்சிப் பழம்|Lychee',
+      'முலாம் பழம்|Muskmelon',
+      'வாட்டர்மெலன்|Watermelon',
+      'காட்டுப்பழம்|Wild Berry',
+      'புளி ஆப்பிள்|Custard Apple',
+      'நெல்லிப்பழம்|Gooseberry',
+      'காகி பழம்|Persimmon',
+      'ஜாக்பழம்|Jackfruit',
+      'சீன பேரிக்காய்|Asian Pear',
+      'மங்குஸ்தான்|Mangosteen',
+      'ஸ்டார் பழம்|Star Fruit',
+      'பப்பயா விதை|Papaya Seed',
+      'சீத்தாப்பழம்|Sugar Apple'
+    ],
+
+    verbs:[
+      'ஆய்வு செய்|Research',
+      'விளக்கி சொல்|Explain',
+      'ஒப்பிடு|Compare',
+      'தீர்மானி|Decide',
+      'திட்டமிடு|Plan',
+      'பரிசோதனை செய்|Experiment',
+      'கவனி|Observe',
+      'மதிப்பீடு செய்|Evaluate',
+      'ஆராய்ச்சி செய்|Investigate',
+      'விவரித்து எழுது|Describe',
+      'நினைவுகொள்|Remember',
+      'கணித்து பார்|Calculate',
+      'கண்டுபிடி|Discover',
+      'அமை|Organize',
+      'பாதுகாப்பு செய்|Protect',
+      'சரிபார்|Verify',
+      'உருவாக்கு|Create',
+      'தொடங்கு|Initiate',
+      'முடிவு செய்|Conclude',
+      'வளர்த்து|Develop'
+    ],
+
+    household:[
+      'எழுத்து மேஜை|Study Desk',
+      'நூலக அலமாரி|Bookshelf',
+      'துவைப்பொறி|Washing Machine',
+      'மைக்ரோவேவ் அடுப்பு|Microwave Oven',
+      'மின்சார இஸ்திரி|Electric Iron',
+      'தூசி உறிஞ்சி|Vacuum Cleaner',
+      'நீர் காய்ச்சும் கருவி|Water Heater',
+      'மின் கலப்பான்|Mixer Grinder',
+      'சோபா|Sofa',
+      'திரைச்சீலை|Curtain',
+      'பாய்மரம்|Doormat',
+      'சுவர் கடிகாரம்|Wall Clock',
+      'மின்விளக்கு|LED Light',
+      'மின்தடுப்பு|Extension Board',
+      'அலங்கார கண்ணாடி|Mirror',
+      'சேமிப்பு பெட்டி|Storage Box',
+      'பாத்திர அலமாரி|Dish Rack',
+      'தண்ணீர் பாட்டில்|Water Bottle',
+      'குப்பை தொட்டி|Dustbin',
+      'மின் அடுப்பு|Electric Stove'
+    ],
+
+    grocery:[
+      'பிரவுன் அரிசி|Brown Rice',
+      'ஓட்ஸ்|Oats',
+      'சோளம்|Maize',
+      'சிறுதானியம்|Millets',
+      'ஆலிவ் எண்ணெய்|Olive Oil',
+      'தேங்காய் எண்ணெய்|Coconut Oil',
+      'பன்னீர்|Paneer',
+      'சோயா|Soybean',
+      'பாதாம்|Almond',
+      'முந்திரி|Cashew',
+      'உலர் திராட்சை|Raisins',
+      'தேனீர் பொடி|Tea Powder',
+      'காப்பி பொடி|Coffee Powder',
+      'வெண்ணிலா|Vanilla',
+      'பேக்கிங் சோடா|Baking Soda',
+      'பேக்கிங் பவுடர்|Baking Powder',
+      'சீரக தூள்|Cumin Powder',
+      'மிளகாய் தூள்|Chilli Powder',
+      'தனியா தூள்|Coriander Powder',
+      'சிவப்பு சர்க்கரை|Brown Sugar'
+    ]
+  },
+  3:{
+    animals:[
+      'பனிச்சிறுத்தை|Snow Leopard',
+      'காட்டெருமை மாடு|African Buffalo',
+      'மலையெருமை|Yak',
+      'கடல் பசு|Manatee',
+      'கடல் சிங்கம்|Sea Lion',
+      'முள்ளம்பன்றி எலி|Hedgehog',
+      'மர நாய்|Raccoon',
+      'பறக்கும் அணில்|Flying Squirrel',
+      'கடல் நாய்|Seal',
+      'கடல் குதிரை|Seahorse',
+      'கடல் ஆமை|Sea Turtle',
+      'அனகொண்டா|Anaconda',
+      'கடல் ஒட்டகம்|Walrus',
+      'மலை ஓநாய்|Coywolf',
+      'கருப்பு சிறுத்தை|Black Panther',
+      'பனிக் கரடி|Arctic Fox',
+      'நீர்வாழ் ஒட்டகம்|Capybara',
+      'பாறை ஆடு|Ibex',
+      'பனிப்புலி|White Tiger',
+      'காட்டுக் கழுதை|Wild Ass'
+    ],
+
+    birds:[
+      'அல்பட்ராஸ்|Albatross',
+      'பனிப்பறவை கழுகு|Snowy Eagle',
+      'கடல் பறவை|Cormorant',
+      'மலைப் பருந்து|Falcon',
+      'வெள்ளி பறவை|Silver Gull',
+      'சூரிய பறவை|Sunbird',
+      'காட்டுப் பறவை|Hornbill',
+      'மலை நாரை|Ibis',
+      'பனிப்புறா கழுகு|Gyrfalcon',
+      'மின்மினிப் பறவை|Hummingbird',
+      'பாறைப் பறவை|Puffin',
+      'நீல கடற்பறவை|Blue-footed Booby',
+      'பனிப்பறவை அன்னம்|Tundra Swan',
+      'மலை குயில்|Hill Myna',
+      'கருப்பு கழுகு|Black Kite',
+      'கடல் பருந்து|Osprey',
+      'காட்டு வாத்து ராஜா|Mandarin Duck',
+      'மரங்கொத்தி கழுகு|Pileated Woodpecker',
+      'பாறை கழுகு|Condor',
+      'மழை முன் பறவை|Storm Petrel'
+    ],
+
+    fruits:[
+      'மங்குஸ்தான் பழம்|Mangosteen',
+      'ரம்புட்டான்|Rambutan',
+      'லோங்கன்|Longan',
+      'டுரியன்|Durian',
+      'சப்போட்டா விதை|Sapodilla Seed',
+      'காகி பழம்|Persimmon',
+      'சவுர்சாப்|Soursop',
+      'பிரெட் பழம்|Breadfruit',
+      'ஜபுடிகாபா|Jabuticaba',
+      'புளியரஞ்சு|Pomelo',
+      'காட்டு திராட்சை|Wild Grape',
+      'பனங்காய்|Palm Fruit',
+      'நாவல் விதை|Jamun Seed',
+      'காக்டஸ் பழம்|Prickly Pear',
+      'பாசன் பழ வகை|Granadilla',
+      'காட்டு சீத்தாப்பழம்|Wild Custard Apple',
+      'கேண்டலோப்|Cantaloupe',
+      'முலாம் பழ விதை|Melon Seed',
+      'சர்க்கரைப் பேரிக்காய்|Sugar Pear',
+      'மரப்பழம்|Tree Tomato'
+    ],
+
+    verbs:[
+      'ஆழமாக ஆராய்ச்சி செய்|Analyze',
+      'கருத்தாக்கம் செய்|Conceptualize',
+      'முன்னறிவி|Predict',
+      'தர்க்கம் செய்|Reason',
+      'மதிப்பாய்வு செய்|Assess',
+      'பிரித்தறி|Differentiate',
+      'ஒத்திசை|Synchronize',
+      'சுருக்கி எழுது|Summarize',
+      'விரிவாக்கு|Elaborate',
+      'மாற்றியமை|Transform',
+      'முறைப்படுத்து|Systematize',
+      'முன்மொழி|Propose',
+      'பரிசீலனை செய்|Review',
+      'செயல்படுத்து|Implement',
+      'ஒருங்கிணை|Integrate',
+      'மறுசீரமை|Reorganize',
+      'விளக்கவுரை செய்|Interpret',
+      'வாதிடு|Argue',
+      'உறுதிப்படுத்து|Validate',
+      'கட்டுப்படுத்து|Regulate'
+    ],
+
+    household:[
+      'மின்சார தூசி உறிஞ்சி|Robotic Vacuum Cleaner',
+      'ஸ்மார்ட் விளக்கு|Smart Light',
+      'காற்று சுத்திகரிப்பான்|Air Purifier',
+      'மின்சார நீர் வடிகட்டி|Water Purifier',
+      'ஸ்மார்ட் டிவி|Smart Television',
+      'டிஜிட்டல் கதவு பூட்டு|Digital Door Lock',
+      'மின்சார அரிசி குக்கர்|Electric Rice Cooker',
+      'உணவு செயலி|Food Processor',
+      'மின்சார காபி இயந்திரம்|Coffee Machine',
+      'ஸ்மார்ட் ஸ்பீக்கர்|Smart Speaker',
+      'மின்சார துவைப்பொறி உலர்த்தி|Washer Dryer',
+      'சூரிய விளக்கு|Solar Lamp',
+      'மின்சார இண்டக்ஷன் அடுப்பு|Induction Stove',
+      'மின்சார நீர் பம்ப்|Water Pump',
+      'டிஜிட்டல் வெப்பமானி|Digital Thermometer',
+      'மின்சார பாதுகாப்பு அமைப்பு|Home Security System',
+      'ஸ்மார்ட் வெப்ப கட்டுப்படுத்தி|Smart Thermostat',
+      'மின்சார நீர் குளிர்ப்பான்|Water Cooler',
+      'ஒலி தடுப்பு திரை|Soundproof Curtain',
+      'மின்சார சார்ஜிங் நிலையம்|Charging Station'
+    ],
+
+    grocery:[
+      'கினோவா|Quinoa',
+      'சியா விதை|Chia Seeds',
+      'ஃபிளாக்ஸ் விதை|Flax Seeds',
+      'பாதாம் பால்|Almond Milk',
+      'ஓட்ஸ் பால்|Oat Milk',
+      'தேங்காய் சர்க்கரை|Coconut Sugar',
+      'பனை வெல்லம்|Palm Jaggery',
+      'கருப்பு உப்பு|Black Salt',
+      'கடல் உப்பு|Sea Salt',
+      'மசாலா கலவை|Mixed Spices',
+      'புரதப் பொடி|Protein Powder',
+      'கோதுமை மா முழுதானியம்|Whole Wheat Flour',
+      'சோயா சாஸ்|Soy Sauce',
+      'ஆலிவ் எண்ணெய் குளிர்சுருக்கம்|Cold Pressed Olive Oil',
+      'ஆர்கானிக் தேன்|Organic Honey',
+      'உலர் பழ கலவை|Dry Fruit Mix',
+      'சூப் கலவை|Soup Mix',
+      'பேக்கிங் ஈஸ்ட்|Baking Yeast',
+      'சாக்லேட் பொடி|Cocoa Powder',
+      'ஹெர்ப் கலவை|Herb Mix'
+    ]
+  }
+
+
 };
 
 // ===== WORD RELATIONS DATA (20 WORDS) =====
-const WORD_RELATIONS = [
+const WORD_RELATIONS_OLD = [
   {
     ta: "பெரியது",
     en: "Big",
@@ -412,12 +702,385 @@ const WORD_RELATIONS = [
   }
 ];
 
+const WORD_RELATIONS = {
+  1:[
+    {
+      ta: "பெரியது",
+      en: "Big",
+      synonyms: { ta: ["விசாலமானது", "மிகப்பெரியது"], en: ["Large", "Huge"] },
+      antonyms: { ta: ["சிறியது"], en: ["Small"] }
+    },
+    {
+      ta: "வேகமாக",
+      en: "Fast",
+      synonyms: { ta: ["அதிவேகமாக"], en: ["Quick"] },
+      antonyms: { ta: ["மெதுவாக"], en: ["Slow"] }
+    },
+    {
+      ta: "சுத்தமானது",
+      en: "Clean",
+      synonyms: { ta: ["தூய்மையானது"], en: ["Neat"] },
+      antonyms: { ta: ["அழுக்கானது"], en: ["Dirty"] }
+    },
+    {
+      ta: "புதியது",
+      en: "New",
+      synonyms: { ta: ["சமீபத்திய"], en: ["Fresh"] },
+      antonyms: { ta: ["பழையது"], en: ["Old"] }
+    },
+    {
+      ta: "நல்லது",
+      en: "Good",
+      synonyms: { ta: ["சிறந்தது", "மேன்மையானது"], en: ["Nice", "Excellent"] },
+      antonyms: { ta: ["கெட்டது"], en: ["Bad"] }
+    },
+    {
+      ta: "சந்தோஷம்",
+      en: "Happy",
+      synonyms: { ta: ["மகிழ்ச்சி", "ஆனந்தம்"], en: ["Joyful", "Glad"] },
+      antonyms: { ta: ["சோகம்"], en: ["Sad"] }
+    },
+    {
+      ta: "அழகானது",
+      en: "Beautiful",
+      synonyms: { ta: ["இனிமையானது"], en: ["Pretty"] },
+      antonyms: { ta: ["அழகில்லாதது"], en: ["Ugly"] }
+    },
+    {
+      ta: "வலுவானது",
+      en: "Strong",
+      synonyms: { ta: ["உறுதியானது"], en: ["Powerful"] },
+      antonyms: { ta: ["பலவீனமானது"], en: ["Weak"] }
+    },
+    {
+      ta: "எளிதானது",
+      en: "Easy",
+      synonyms: { ta: ["சுலபமானது"], en: ["Simple"] },
+      antonyms: { ta: ["கடினமானது"], en: ["Hard"] }
+    },
+    {
+      ta: "மென்மையானது",
+      en: "Soft",
+      synonyms: { ta: ["நெகிழ்வானது"], en: ["Gentle"] },
+      antonyms: { ta: ["கடினமானது"], en: ["Hard"] }
+    },
+    {
+      ta: "குளிர்ந்தது",
+      en: "Cold",
+      synonyms: { ta: ["சீதமானது"], en: ["Cool"] },
+      antonyms: { ta: ["சூடானது"], en: ["Hot"] }
+    },
+    {
+      ta: "உயரமானது",
+      en: "Tall",
+      synonyms: { ta: ["நீளமானது"], en: ["High"] },
+      antonyms: { ta: ["குறுகிய"], en: ["Short"] }
+    },
+    {
+      ta: "வேகமானது",
+      en: "Quick",
+      synonyms: { ta: ["சுறுசுறுப்பானது"], en: ["Fast"] },
+      antonyms: { ta: ["மெதுவானது"], en: ["Slow"] }
+    },
+    {
+      ta: "பெரும்பான்மை",
+      en: "Many",
+      synonyms: { ta: ["அதிகமான"], en: ["Several"] },
+      antonyms: { ta: ["குறைவான"], en: ["Few"] }
+    },
+    {
+      ta: "முழுமையானது",
+      en: "Full",
+      synonyms: { ta: ["நிறைந்த"], en: ["Complete"] },
+      antonyms: { ta: ["காலியான"], en: ["Empty"] }
+    },
+    {
+      ta: "தூய்மை",
+      en: "Pure",
+      synonyms: { ta: ["சுத்தமான"], en: ["Clean"] },
+      antonyms: { ta: ["மாசான"], en: ["Impure"] }
+    },
+    {
+      ta: "வெளிச்சமானது",
+      en: "Bright",
+      synonyms: { ta: ["ஒளிமிக்க"], en: ["Shiny"] },
+      antonyms: { ta: ["இருண்ட"], en: ["Dark"] }
+    },
+    {
+      ta: "பாதுகாப்பானது",
+      en: "Safe",
+      synonyms: { ta: ["பாதுகாக்கப்பட்ட"], en: ["Secure"] },
+      antonyms: { ta: ["ஆபத்தானது"], en: ["Dangerous"] }
+    },
+    {
+      ta: "சுறுசுறுப்பானது",
+      en: "Active",
+      synonyms: { ta: ["வேகமான"], en: ["Energetic"] },
+      antonyms: { ta: ["சோம்பேறியான"], en: ["Lazy"] }
+    },
+    {
+      ta: "அமைதியானது",
+      en: "Quiet",
+      synonyms: { ta: ["மௌனமான"], en: ["Silent"] },
+      antonyms: { ta: ["சத்தமான"], en: ["Noisy"] }
+    }
+  ],
+  2:[
+    {
+      ta: "மாபெரியது",
+      en: "Enormous",
+      synonyms: { ta: ["மிகவும் விசாலமானது", "பிரமாண்டமானது"], en: ["Huge", "Massive"] },
+      antonyms: { ta: ["அற்பமானது"], en: ["Tiny"] }
+    },
+    {
+      ta: "அதிவேகமானது",
+      en: "Rapid",
+      synonyms: { ta: ["மின்னல் வேகமானது"], en: ["Swift", "Speedy"] },
+      antonyms: { ta: ["மந்தமானது"], en: ["Sluggish"] }
+    },
+    {
+      ta: "தூய்மையாக பராமரிக்கப்பட்டது",
+      en: "Spotless",
+      synonyms: { ta: ["மாசில்லாதது"], en: ["Immaculate"] },
+      antonyms: { ta: ["மாசடைந்தது"], en: ["Filthy"] }
+    },
+    {
+      ta: "நவீனமானது",
+      en: "Modern",
+      synonyms: { ta: ["சமகாலத்துக்கேற்ற"], en: ["Contemporary"] },
+      antonyms: { ta: ["பழங்காலமானது"], en: ["Outdated"] }
+    },
+    {
+      ta: "சிறப்பானது",
+      en: "Outstanding",
+      synonyms: { ta: ["மிகச் சிறந்தது", "புகழ்பெற்றது"], en: ["Remarkable", "Excellent"] },
+      antonyms: { ta: ["தரமற்றது"], en: ["Poor"] }
+    },
+    {
+      ta: "பேரானந்தம்",
+      en: "Delighted",
+      synonyms: { ta: ["மிகுந்த மகிழ்ச்சி"], en: ["Thrilled", "Joyful"] },
+      antonyms: { ta: ["மனவருத்தம்"], en: ["Depressed"] }
+    },
+    {
+      ta: "மனமகிழ்வானது",
+      en: "Attractive",
+      synonyms: { ta: ["கவர்ச்சியானது"], en: ["Appealing"] },
+      antonyms: { ta: ["விருப்பமற்றது"], en: ["Unpleasant"] }
+    },
+    {
+      ta: "திடமானது",
+      en: "Robust",
+      synonyms: { ta: ["உறுதியானது", "தாங்கும் திறன் கொண்டது"], en: ["Sturdy", "Resilient"] },
+      antonyms: { ta: ["பலவீனமானது"], en: ["Fragile"] }
+    },
+    {
+      ta: "சிரமமற்றது",
+      en: "Effortless",
+      synonyms: { ta: ["இலகுவானது"], en: ["Smooth"] },
+      antonyms: { ta: ["சிக்கலானது"], en: ["Complicated"] }
+    },
+    {
+      ta: "மிருதுவானது",
+      en: "Delicate",
+      synonyms: { ta: ["மென்மையானது", "நுண்ணிய"], en: ["Tender"] },
+      antonyms: { ta: ["கடுமையானது"], en: ["Harsh"] }
+    },
+    {
+      ta: "பனிப்போன்றது",
+      en: "Chilly",
+      synonyms: { ta: ["மிகக் குளிர்ந்தது"], en: ["Cool"] },
+      antonyms: { ta: ["கொதிக்கும்"], en: ["Boiling"] }
+    },
+    {
+      ta: "உயர்வடைந்தது",
+      en: "Elevated",
+      synonyms: { ta: ["மேல்நிலையான"], en: ["Raised"] },
+      antonyms: { ta: ["தாழ்ந்த"], en: ["Low"] }
+    },
+    {
+      ta: "சுறுசுறுப்புடன் செயல்படும்",
+      en: "Agile",
+      synonyms: { ta: ["விரைவாக நகரும்"], en: ["Nimble"] },
+      antonyms: { ta: ["மந்தமான"], en: ["Slow-moving"] }
+    },
+    {
+      ta: "அதிக அளவு",
+      en: "Abundant",
+      synonyms: { ta: ["மிகுந்த", "பெருமளவு"], en: ["Plentiful"] },
+      antonyms: { ta: ["அரிதான"], en: ["Scarce"] }
+    },
+    {
+      ta: "நிறைவுற்றது",
+      en: "Saturated",
+      synonyms: { ta: ["முழுமையாக நிரம்பிய"], en: ["Filled"] },
+      antonyms: { ta: ["வெறுமையான"], en: ["Vacant"] }
+    },
+    {
+      ta: "மாசற்றது",
+      en: "Uncontaminated",
+      synonyms: { ta: ["தூய்மையான"], en: ["Pure"] },
+      antonyms: { ta: ["மாசடைந்த"], en: ["Polluted"] }
+    },
+    {
+      ta: "ஒளிர்வானது",
+      en: "Radiant",
+      synonyms: { ta: ["பிரகாசமான"], en: ["Luminous"] },
+      antonyms: { ta: ["மங்கலான"], en: ["Dim"] }
+    },
+    {
+      ta: "நம்பகமானது",
+      en: "Reliable",
+      synonyms: { ta: ["நம்பிக்கைக்குரியது"], en: ["Trustworthy"] },
+      antonyms: { ta: ["நம்ப முடியாத"], en: ["Risky"] }
+    },
+    {
+      ta: "செயலாற்றலானது",
+      en: "Dynamic",
+      synonyms: { ta: ["உயர் ஆற்றல் கொண்ட"], en: ["Energetic"] },
+      antonyms: { ta: ["சோர்வான"], en: ["Inactive"] }
+    },
+    {
+      ta: "சாந்தமானது",
+      en: "Serene",
+      synonyms: { ta: ["மிக அமைதியான"], en: ["Peaceful"] },
+      antonyms: { ta: ["குழப்பமான"], en: ["Chaotic"] }
+    }
+  ],
+  3:[
+  {
+    ta: "அசாதாரணமானது",
+    en: "Extraordinary",
+    synonyms: { ta: ["அரிய", "விசித்திரமான"], en: ["Exceptional", "Remarkable"] },
+    antonyms: { ta: ["சாதாரணமான"], en: ["Ordinary"] }
+  },
+  {
+    ta: "அதிவேகமாக மாறும்",
+    en: "Accelerated",
+    synonyms: { ta: ["வேகமாக முன்னேறும்"], en: ["Rapid", "Fast-paced"] },
+    antonyms: { ta: ["மந்தமான"], en: ["Decelerated"] }
+  },
+  {
+    ta: "மாசற்ற நிலையில் உள்ள",
+    en: "Pristine",
+    synonyms: { ta: ["முழுமையாக தூய்மையான"], en: ["Unspoiled"] },
+    antonyms: { ta: ["மாசடைந்த"], en: ["Contaminated"] }
+  },
+  {
+    ta: "புதுமைமிக்க",
+    en: "Innovative",
+    synonyms: { ta: ["புதிய சிந்தனை கொண்ட"], en: ["Creative", "Novel"] },
+    antonyms: { ta: ["பழமையான"], en: ["Conventional"] }
+  },
+  {
+    ta: "மிகச் சிறந்த தரமுடைய",
+    en: "Exemplary",
+    synonyms: { ta: ["மாதிரியாகக் கொள்ளத்தக்க"], en: ["Model", "Ideal"] },
+    antonyms: { ta: ["தரமற்ற"], en: ["Inferior"] }
+  },
+  {
+    ta: "உள்மகிழ்ச்சியுடன் நிறைந்த",
+    en: "Elated",
+    synonyms: { ta: ["மிகுந்த ஆனந்தம்"], en: ["Overjoyed"] },
+    antonyms: { ta: ["மனச்சோர்வான"], en: ["Dejected"] }
+  },
+  {
+    ta: "கவர்ச்சியூட்டும்",
+    en: "Captivating",
+    synonyms: { ta: ["மனதை ஈர்க்கும்"], en: ["Enchanting"] },
+    antonyms: { ta: ["சலிப்பூட்டும்"], en: ["Dull"] }
+  },
+  {
+    ta: "நீடித்திருக்கும் தன்மை கொண்ட",
+    en: "Resilient",
+    synonyms: { ta: ["தாங்கும் திறன் உடைய"], en: ["Durable"] },
+    antonyms: { ta: ["எளிதில் உடையும்"], en: ["Brittle"] }
+  },
+  {
+    ta: "எளிதில் நிறைவேற்றக்கூடிய",
+    en: "Feasible",
+    synonyms: { ta: ["சாத்தியமான"], en: ["Achievable"] },
+    antonyms: { ta: ["சாத்தியமற்ற"], en: ["Impossible"] }
+  },
+  {
+    ta: "நுண்ணிய மற்றும் மென்மையான",
+    en: "Subtle",
+    synonyms: { ta: ["மெதுவாக வெளிப்படும்"], en: ["Delicate"] },
+    antonyms: { ta: ["தெளிவாகத் தெரியும்"], en: ["Obvious"] }
+  },
+  {
+    ta: "மிகக் குளிர்ச்சியான",
+    en: "Frigid",
+    synonyms: { ta: ["கடுமையான குளிர்"], en: ["Icy"] },
+    antonyms: { ta: ["வெப்பமான"], en: ["Warm"] }
+  },
+  {
+    ta: "மேம்பட்ட நிலை கொண்ட",
+    en: "Advanced",
+    synonyms: { ta: ["உயர் நிலையில் உள்ள"], en: ["Developed"] },
+    antonyms: { ta: ["அடிப்படை"], en: ["Basic"] }
+  },
+  {
+    ta: "விரைவாகச் செயல்படும்",
+    en: "Prompt",
+    synonyms: { ta: ["உடனடி பதிலளிக்கும்"], en: ["Quick"] },
+    antonyms: { ta: ["தாமதமான"], en: ["Delayed"] }
+  },
+  {
+    ta: "மிகுந்த அளவில் உள்ள",
+    en: "Substantial",
+    synonyms: { ta: ["கணிசமான"], en: ["Considerable"] },
+    antonyms: { ta: ["அற்பமான"], en: ["Minimal"] }
+  },
+  {
+    ta: "முழுமையாக நிறைவேற்றப்பட்ட",
+    en: "Comprehensive",
+    synonyms: { ta: ["அனைத்தையும் உள்ளடக்கிய"], en: ["Extensive"] },
+    antonyms: { ta: ["பகுதியளவு"], en: ["Partial"] }
+  },
+  {
+    ta: "மாசுபடாத",
+    en: "Unpolluted",
+    synonyms: { ta: ["மாசற்ற"], en: ["Pure"] },
+    antonyms: { ta: ["மாசுபட்ட"], en: ["Polluted"] }
+  },
+  {
+    ta: "பிரகாசமாக வெளிப்படும்",
+    en: "Vivid",
+    synonyms: { ta: ["தெளிவாக உணரப்படும்"], en: ["Striking"] },
+    antonyms: { ta: ["மங்கலான"], en: ["Faded"] }
+  },
+  {
+    ta: "நம்பிக்கைக்குரிய",
+    en: "Credible",
+    synonyms: { ta: ["நம்பத்தகுந்த"], en: ["Believable"] },
+    antonyms: { ta: ["நம்பமுடியாத"], en: ["Unreliable"] }
+  },
+  {
+    ta: "மாறுபாடுகளைக் கொண்ட",
+    en: "Versatile",
+    synonyms: { ta: ["பலவகையில் பயன்படும்"], en: ["Flexible"] },
+    antonyms: { ta: ["ஒரே மாதிரியான"], en: ["Rigid"] }
+  },
+  {
+    ta: "அமைதியும் தெளிவும் கொண்ட",
+    en: "Tranquil",
+    synonyms: { ta: ["சாந்தமான"], en: ["Calm"] },
+    antonyms: { ta: ["பதற்றமான"], en: ["Turbulent"] }
+  }
+  ]
 
+
+};
   const QUIZ_TOTAL = 20;
   const EXERCISE_TOTAL = 20;
 
   let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
+function getCurrentData(){
+  const level = getCurrentLevel();
+  return LEVEL_DATA[level] || LEVEL_DATA[1];
+}
 
   function show(id){
   ['profile','home','mode','flash','quiz','exercise','match','result','progress']
@@ -442,18 +1105,38 @@ const WORD_RELATIONS = [
 
 
   function selectCategory(c){
-    list = DATA[c].map(x=>{ const[t,e]=x.split('|'); return {ta:t,en:e}; });
+    list = getCurrentData()[c].map(x=>{ const[t,e]=x.split('|'); return {ta:t,en:e}; });
     i=0;
     modeTitle.textContent=c;
     show('mode');
   }
 
-  function selectRelation(type){
+  /*function selectRelation(type){
     list = WORD_RELATIONS.map(w=>({ ta:w.ta, en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0] }));
     i=0;
     modeTitle.textContent=type;
     show('mode');
-  }
+  }*/
+ function selectRelation(type){
+  const level = getCurrentLevel();
+
+  // get relations for current level, fallback to level 1
+  const relations = WORD_RELATIONS[level] || WORD_RELATIONS[1];
+
+  list = relations.map(w => {
+    return {
+      ta: w.ta,
+      en: type === 'synonyms'
+        ? w.synonyms.en[0]
+        : w.antonyms.en[0]
+    };
+  });
+
+  i = 0;
+  modeTitle.textContent = type.toUpperCase();
+  show('mode');
+}
+
 
   function startFlashcards(){ show('flash'); updateCard(); }
   function updateCard(){ front.textContent=list[i].ta; back.textContent=list[i].en; flashCounter.textContent=`${i+1} / ${list.length}`; }
