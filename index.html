@@ -60,6 +60,37 @@
     .p-card.quiz{background:#eef2ff}
     .p-card.exercise{background:#f0fdf4}
     .p-card.match{background:#fff7ed}
+    .cat-progress{
+      font-size:12px;
+      margin-top:6px;
+      opacity:.9;
+    }
+    .cat-progress span{
+      display:block;
+    }
+    #resultCard{
+      text-align:center;
+    }
+
+    .result-summary{
+      text-align:left;
+      margin:16px 0;
+      line-height:1.6;
+    }
+
+    .result-summary .new-best{
+      color:#16a34a;
+      font-weight:bold;
+    }
+
+    .result-actions{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin-top:20px;
+    }
+
+
   </style>
 </head>
 <body>
@@ -118,14 +149,38 @@
 
     <p>Select a category</p>
     <div class="grid">
-      <button class="btn animals" onclick="selectCategory('animals')">🐾 Animals</button>
-      <button class="btn birds" onclick="selectCategory('birds')">🐦 Birds</button>
-      <button class="btn fruits" onclick="selectCategory('fruits')">🍎 Fruits</button>
-      <button class="btn verbs" onclick="selectCategory('verbs')">🏃 Verbs</button>
-      <button class="btn household" onclick="selectCategory('household')">🏠 Household</button>
-      <button class="btn grocery" onclick="selectCategory('grocery')">🛒 Grocery</button>
-      <button class="btn synonyms" onclick="selectRelation('synonyms')">🔁 Synonyms</button>
-      <button class="btn antonyms" onclick="selectRelation('antonyms')">🔀 Antonyms</button>
+      <button class="btn animals" onclick="selectCategory('animals')">
+        🐾 Animals
+         <div class="cat-progress" id="home-animals"></div>
+      </button>
+      <button class="btn birds" onclick="selectCategory('birds')">
+        🐦 Birds
+         <div class="cat-progress" id="home-birds"></div>
+      </button>
+      <button class="btn fruits" onclick="selectCategory('fruits')">
+        🍎 Fruits
+         <div class="cat-progress" id="home-fruits"></div>
+      </button>
+      <button class="btn verbs" onclick="selectCategory('verbs')">
+        🏃 Verbs
+         <div class="cat-progress" id="home-verbs"></div>
+      </button>
+      <button class="btn household" onclick="selectCategory('household')">
+        🏠 Household
+        <div class="cat-progress" id="home-household"></div>
+      </button>
+      <button class="btn grocery" onclick="selectCategory('grocery')">
+        🛒 Grocery
+        <div class="cat-progress" id="home-grocery"></div>
+      </button>
+      <button class="btn synonyms" onclick="selectRelation('synonyms')">
+        🔁 Synonyms
+      <div class="cat-progress" id="home-synonyms"></div>
+      </button>
+      <button class="btn antonyms" onclick="selectRelation('antonyms')">
+        🔀 Antonyms
+      <div class="cat-progress" id="home-antonyms"></div>
+      </button>
     </div>
   </div>
 
@@ -136,7 +191,7 @@
     <div class="mode-grid">
       <button class="btn animals mode-btn" onclick="startFlashcards()">🃏 Flashcards</button>
       <button class="btn birds mode-btn" onclick="startQuiz()">🧠 Quiz</button>
-      <button class="btn fruits mode-btn" onclick="startExercise()">✏️ Exercises</button>
+      <button class="btn fruits mode-btn" onclick="startExercise()">✏️ Fill in the Blanks</button>
       <button class="btn verbs mode-btn" onclick="startMatch()">🧩 Match</button>
     </div>
   </div>
@@ -193,6 +248,18 @@
       <button class="btn animals mode-btn" onclick="goHome()">🏠 Home</button>
     </div>
   </div>
+<!-- RESULT CARD -->
+  <div id="resultCard" class="hidden">
+  <h2 id="resultTitle"></h2>
+
+  <div class="result-summary" id="resultSummary"></div>
+
+  <div class="result-actions">
+    <button onclick="retryActivity()">🔁 Retry</button>
+    <button onclick="goHome()">🏠 Home</button>
+  </div>
+</div>
+
     <!-- LEVEL SELECTOR -->
   <div id="levelSelector" class="hidden"
      style="position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:10000">
@@ -251,7 +318,7 @@
     <div class="p-card exercise">
       <div class="p-icon">✏️</div>
       <div>
-        <h4>Exercise</h4>
+        <h4>Fill in the Blanks</h4>
         <p>Attempts: <b><span id="pExerciseAttempts">0</span></b></p>
         <p>Best Score: <b><span id="pExerciseBest">0</span></b></p>
       </div>
@@ -1072,8 +1139,21 @@ const WORD_RELATIONS = {
 
 
 };
+  let currentCategory = null;
+  let currentMode = null;
   const QUIZ_TOTAL = 20;
   const EXERCISE_TOTAL = 20;
+  const LEVEL_CONFIG = {
+  1: { quizOptions: 2, exerciseOptions: 2, matchOptions: 3 },
+  2: { quizOptions: 3, exerciseOptions: 3, matchOptions: 5 },
+  3: { quizOptions: 4, exerciseOptions: 4, matchOptions: 7 }
+};
+
+
+function getLevelConfig(){
+  return LEVEL_CONFIG[getCurrentLevel()] || LEVEL_CONFIG[1];
+}
+
 
   let list=[], i=0, score=0, exerciseIndex=0, exerciseOrder=[];
 
@@ -1081,12 +1161,56 @@ function getCurrentData(){
   const level = getCurrentLevel();
   return LEVEL_DATA[level] || LEVEL_DATA[1];
 }
+function categoryLabel(cat){
+  return cat
+    ? cat.charAt(0).toUpperCase() + cat.slice(1)
+    : '';
+}
+function updateHomeCategoryProgress(){
+  const p = getCategoryProgress();
+
+  Object.keys(p).forEach(cat => {
+    const el = document.getElementById(`home-${cat}`);
+    if(!el) return;
+
+    const data = p[cat];
+    let lines = [];
+
+    if(data.quiz?.attempts){
+      lines.push(`🧠 Best: ${data.quiz.best}`);
+    }
+    if(data.exercise?.attempts){
+      lines.push(`✏️ Best: ${data.exercise.best}`);
+    }
+    if(data.match?.attempts){
+      lines.push(`🧩 Played: ${data.match.attempts}×`);
+    }
+
+    el.innerHTML = lines.map(l => `<span>${l}</span>`).join('');
+  });
+}
+
 
   function show(id){
-  ['profile','home','mode','flash','quiz','exercise','match','result','progress']
-    .forEach(v => document.getElementById(v).style.display = 'none');
-  document.getElementById(id).style.display = 'block';
-}
+    [
+      'home',
+      'mode',
+      'quiz',
+      'exercise',
+      'match',
+      'progress',
+      'resultCard'   // ✅ ADD THIS
+    ].forEach(v =>
+      document.getElementById(v)?.classList.add('hidden')
+    );
+
+    document.getElementById(id).classList.remove('hidden');
+
+    if(id === 'home'){
+      updateHomeCategoryProgress();
+    }
+  }
+
 
 
   function goHome(){ show('home'); }
@@ -1105,11 +1229,37 @@ function getCurrentData(){
 
 
   function selectCategory(c){
+    currentCategory = c; // ✅ ADD THIS LINE
     list = getCurrentData()[c].map(x=>{ const[t,e]=x.split('|'); return {ta:t,en:e}; });
     i=0;
     modeTitle.textContent=c;
     show('mode');
   }
+  function buildCategoryResultSummary({ category, mode, score, total, isNewBest }){
+  const p = getCategoryProgress()[category];
+  if(!p || !p[mode]) return '';
+
+  let lines = [];
+
+  lines.push(`📂 Category: ${categoryLabel(category)}`);
+
+  if(mode !== 'match'){
+    lines.push(`🎯 Score: ${score} / ${total}`);
+
+    let bestLine = `🏆 Best so far: ${p[mode].best} / ${total}`;
+    if(isNewBest) bestLine += ' (New Best!)';
+    lines.push(bestLine);
+  }
+
+  if(mode === 'match'){
+    lines.push(`🔁 Times practiced in this category: ${p.match.attempts}`);
+  } else {
+    lines.push(`🔁 Attempts in this category: ${p[mode].attempts}`);
+  }
+
+  return lines.join('\n');
+}
+
 
   /*function selectRelation(type){
     list = WORD_RELATIONS.map(w=>({ ta:w.ta, en:type==='synonyms'?w.synonyms.en[0]:w.antonyms.en[0] }));
@@ -1118,6 +1268,7 @@ function getCurrentData(){
     show('mode');
   }*/
  function selectRelation(type){
+  currentCategory = type; // 'synonyms' or 'antonyms'
   const level = getCurrentLevel();
 
   // get relations for current level, fallback to level 1
@@ -1144,7 +1295,8 @@ function getCurrentData(){
   function prev(){ if(i>0){ i--; updateCard(); } }
   function flipCard(){ cardInner.classList.toggle('flipped'); }
 
-  function startQuiz(){ i=0; score=0; show('quiz'); loadQuiz(); }
+
+  function startQuiz(){currentMode = 'quiz'; i=0; score=0; show('quiz'); loadQuiz(); }
 
   function loadQuiz(){
     const q=list[i];
@@ -1153,9 +1305,10 @@ function getCurrentData(){
     question.textContent=q.ta;
     quizCounter.textContent=`${i+1} / ${list.length}`;
     options.innerHTML='';
+    const { quizOptions } = getLevelConfig();
     let answered=false;
     const distractors=list.filter(x=>x.en!==q.en).map(x=>x.en);
-    const choices=shuffle([q.en,...shuffle(distractors).slice(0,2)]);
+    const choices=shuffle([q.en,...shuffle(distractors).slice(0,quizOptions - 1)]);
     choices.forEach(choice=>{
       const btn=document.createElement('button');
       btn.className='opt';
@@ -1176,13 +1329,55 @@ function getCurrentData(){
     });
   }
 
-  function nextQuiz(){
+ /* function nextQuiz(){
     if(quizNext.disabled) return;
     if(i===list.length-1){if(isNewBest('quiz', score)) showNewBest(); recordQuiz(score);updateStreak();checkLevelUnlock(); showResult(); return; }
     i++; loadQuiz();
+  }*/
+
+  function nextQuiz(){
+    if(quizNext.disabled) return;
+
+    // LAST QUESTION
+    if(i === list.length - 1){
+
+      // 1️⃣ capture previous best
+      const prevBest =
+        getCategoryProgress()[currentCategory]?.quiz?.best || 0;
+
+      // 2️⃣ record progress
+      recordQuiz(score);
+
+      // 3️⃣ detect new best
+      const isNew = score > prevBest;
+
+      // 4️⃣ streak + unlock
+      updateStreak();
+      checkLevelUnlock();
+
+      // 5️⃣ show result summary
+      showResultCard({
+          title: '🧠 Quiz Completed!',
+          summaryHtml: buildCategoryResultHTML({
+            category: currentCategory,
+            mode: 'quiz',
+            score,
+            total: list.length,
+            isNewBest: isNew
+          })
+        });
+
+
+      return;
+    }
+
+    // NEXT QUESTION
+    i++;
+    loadQuiz();
   }
 
-  function startExercise(){ exerciseIndex=0; score=0; exerciseOrder=shuffle([...list]); show('exercise'); loadExercise(); }
+
+  function startExercise(){currentMode = 'exercise'; exerciseIndex=0; score=0; exerciseOrder=shuffle([...list]); show('exercise'); loadExercise(); }
 
   function loadExercise(){
     const item=exerciseOrder[exerciseIndex];
@@ -1192,8 +1387,17 @@ function getCurrentData(){
     exerciseCounter.textContent=`${exerciseIndex+1} / ${exerciseOrder.length}`;
     exerciseOptions.innerHTML='';
     let answered=false;
-    const distractors=list.filter(x=>x.ta!==item.ta).map(x=>x.ta);
-    const choices=shuffle([item.ta,...shuffle(distractors).slice(0,2)]);
+    // const distractors=list.filter(x=>x.ta!==item.ta).map(x=>x.ta);
+    const allAnswers = list.map(x => x.ta);
+
+    // remove correct answer ONCE
+    const distractors = allAnswers.filter(ta => ta !== item.ta);
+
+     const optionCount = getLevelConfig().exerciseOptions;
+
+    const maxOptions = 1 + distractors.length;
+    const optCount = Math.min(optionCount, maxOptions);
+    const choices=shuffle([item.ta,...shuffle(distractors).slice(0,optCount - 1)]);
     choices.forEach(choice=>{
       const btn=document.createElement('button');
       btn.className='opt';
@@ -1214,11 +1418,52 @@ function getCurrentData(){
     });
   }
 
-  function nextExercise(){
+  /*function nextExercise(){
     if(exerciseNext.disabled) return;
     if(exerciseIndex===exerciseOrder.length-1){if(isNewBest('exercise', score)) showNewBest(); recordExercise(score);updateStreak();checkLevelUnlock(); resultText.textContent=`Your score: ${score} / ${exerciseOrder.length}`; show('result'); return; }
     exerciseIndex++; loadExercise();
+  }*/
+ function nextExercise(){
+    if(exerciseNext.disabled) return;
+
+    // LAST QUESTION
+    if(exerciseIndex === exerciseOrder.length - 1){
+
+      // 1️⃣ capture previous best
+      const prevBest =
+        getCategoryProgress()[currentCategory]?.exercise?.best || 0;
+
+      // 2️⃣ record progress
+      recordExercise(score);
+
+      // 3️⃣ detect new best
+      const isNew = score > prevBest;
+
+      // 4️⃣ streak + unlock
+      updateStreak();
+      checkLevelUnlock();
+
+      // 5️⃣ show result summary
+      showResultCard({
+        title: '✏️ Fill in the Blanks Completed!',
+        summaryHtml: buildCategoryResultHTML({
+          category: currentCategory,
+          mode: 'exercise',
+          score,
+          total: exerciseOrder.length,
+          isNewBest: isNew
+        })
+      });
+
+
+      return;
+    }
+
+    // NEXT QUESTION
+    exerciseIndex++;
+    loadExercise();
   }
+
 
   function showResult(){ resultText.textContent=`Your score: ${score} / ${list.length}`; show('result'); }
 
@@ -1226,9 +1471,18 @@ function getCurrentData(){
   let matchPairs=[], selectedLeft=null, selectedRight=null, matchedCount=0;
 
   function startMatch(){
+    currentMode = 'match';
+    console.log('START MATCH → list length:', list.length);
     matchedCount=0;
     selectedLeft=null; selectedRight=null;
-    matchPairs=shuffle([...list]).slice(0,4);
+    //matchPairs=shuffle([...list]).slice(0,4);
+    const { matchOptions } = getLevelConfig();
+
+    const maxPairs = Math.floor(list.length);
+    const pairCount = Math.min(matchOptions, maxPairs);
+
+    matchPairs = shuffle(list).slice(0, pairCount);
+
     matchLeft.innerHTML=''; matchRight.innerHTML='';
     matchCounter.textContent=`0 / ${matchPairs.length}`;
     matchPairs.forEach(pair=>{
@@ -1247,7 +1501,7 @@ function getCurrentData(){
     document.querySelectorAll(side==='left'?'#matchLeft .opt':'#matchRight .opt').forEach(b=>b.classList.remove('correct','wrong'));
   }
 
-  function checkMatch(){
+  /*function checkMatch(){
     if(!selectedLeft||!selectedRight) return;
     if(selectedLeft.pair.en===selectedRight.pair.en){
       selectedLeft.btn.disabled=true; selectedRight.btn.disabled=true;
@@ -1263,9 +1517,63 @@ function getCurrentData(){
         selectedLeft=null; selectedRight=null;
       },600);
     }
-  }
+  }*/
+ function checkMatch(){
+  if(!selectedLeft || !selectedRight) return;
 
-  function retryActivity(){ i=0; score=0; show('quiz'); loadQuiz(); }
+  if(selectedLeft.pair.en === selectedRight.pair.en){
+
+    selectedLeft.btn.disabled = true;
+    selectedRight.btn.disabled = true;
+
+    matchedCount++;
+    matchCounter.textContent = `${matchedCount} / ${matchPairs.length}`;
+
+    selectedLeft = null;
+    selectedRight = null;
+
+    // 🎯 MATCH COMPLETE
+    if(matchedCount === matchPairs.length){
+
+      // 1️⃣ record progress
+      recordMatch();
+
+      // 2️⃣ streak + unlock
+      updateStreak();
+      checkLevelUnlock();
+
+      // 3️⃣ show category summary
+     showResultCard({
+        title: '🧩 Match Completed!',
+        summaryHtml: buildCategoryResultHTML({
+          category: currentCategory,
+          mode: 'match'
+        })
+      });
+
+    }
+
+  } else {
+
+    selectedLeft.btn.classList.add('wrong');
+    selectedRight.btn.classList.add('wrong');
+
+    setTimeout(() => {
+      selectedLeft.btn.classList.remove('wrong','correct');
+      selectedRight.btn.classList.remove('wrong','correct');
+      selectedLeft = null;
+      selectedRight = null;
+    }, 600);
+  }
+}
+
+
+function retryActivity(){
+  if(currentMode === 'quiz') startQuiz();
+  else if(currentMode === 'exercise') startExercise();
+  else if(currentMode === 'match') startMatch();
+}
+/* ===== PROFILE MANAGEMENT ===== */
 
   function confirmProfile(){
   const input = document.getElementById('profileName');
@@ -1425,6 +1733,31 @@ function closeLevelSelector(){
   document.getElementById('levelSelector').classList.add('hidden');
 }
 
+function showResultCard({ title, summaryHtml }){
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSummary').innerHTML = summaryHtml;
+  show('resultCard');
+}
+function buildCategoryResultHTML({ category, mode, score, total, isNewBest }){
+  const p = getCategoryProgress()[category];
+  if(!p || !p[mode]) return '';
+
+  let html = `<p>📂 <b>Category:</b> ${categoryLabel(category)}</p>`;
+
+  if(mode !== 'match'){
+    html += `<p>🎯 <b>Score:</b> ${score} / ${total}</p>`;
+    html += `<p>🏆 <b>Best:</b> ${p[mode].best} / ${total}`;
+    if(isNewBest) html += ` <span class="new-best">(New Best!)</span>`;
+    html += `</p>`;
+  }
+
+  html += `<p>🔁 <b>Attempts:</b> ${
+    mode === 'match' ? p.match.attempts : p[mode].attempts
+  }</p>`;
+
+  return html;
+}
+
   /* ===== PROGRESS TRACKING (GLOBAL) ===== */
 const PROGRESS_KEY = () => `tamil_progress_${getProfile()}`;
 
@@ -1439,6 +1772,18 @@ function getProgress(){
 
 function saveProgress(p){
   localStorage.setItem(PROGRESS_KEY(), JSON.stringify(p));
+}
+
+function categoryProgressKey(){
+  return `tamil_category_progress_${getProfile()}`;
+}
+
+function getCategoryProgress(){
+  return JSON.parse(localStorage.getItem(categoryProgressKey())) || {};
+}
+
+function saveCategoryProgress(p){
+  localStorage.setItem(categoryProgressKey(), JSON.stringify(p));
 }
 
 function percent(score, total){
@@ -1535,20 +1880,46 @@ function recordQuiz(score){
   const p = getProgress();
   p.quiz.attempts++;
   p.quiz.best = Math.max(p.quiz.best, score);
+  const cp = getCategoryProgress();
+  const cc = currentCategory;
+
+  cp[cc] ??= { quiz:{attempts:0,best:0}, exercise:{attempts:0,best:0}, match:{attempts:0} };
+
+  cp[cc].quiz.attempts++;
+  cp[cc].quiz.best = Math.max(cp[cc].quiz.best, score);
+
+  saveCategoryProgress(cp);
   saveProgress(p);
 }
 
 function recordExercise(score){
-  const p = getProgress();
-  p.exercise.attempts++;
-  p.exercise.best = Math.max(p.exercise.best, score);
-  saveProgress(p);
+  const gp = getProgress();
+  gp.exercise.attempts++;
+  gp.exercise.best = Math.max(gp.exercise.best, score);
+  const p = getCategoryProgress();
+  const c = currentCategory;
+
+  p[c] ??= { quiz:{attempts:0,best:0}, exercise:{attempts:0,best:0}, match:{attempts:0} };
+
+  p[c].exercise.attempts++;
+  p[c].exercise.best = Math.max(p[c].exercise.best, score);
+
+  saveCategoryProgress(p);
+  saveProgress(gp);
 }
 
 function recordMatch(){
-  const p = getProgress();
-  p.match.attempts++;
-  saveProgress(p);
+  const gp = getProgress();
+  gp.match.attempts++;
+  const p = getCategoryProgress();
+  const c = currentCategory;
+
+  p[c] ??= { quiz:{attempts:0,best:0}, exercise:{attempts:0,best:0}, match:{attempts:0} };
+
+  p[c].match.attempts++;
+
+  saveCategoryProgress(p);
+  saveProgress(gp);
 }
 
 /* ===== PROFILE ===== */
