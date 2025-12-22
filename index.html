@@ -1195,11 +1195,12 @@ function updateHomeCategoryProgress(){
     [
       'home',
       'mode',
+      'flash',        // ✅ ADD THIS
       'quiz',
       'exercise',
       'match',
       'progress',
-      'resultCard'   // ✅ ADD THIS
+      'resultCard'
     ].forEach(v =>
       document.getElementById(v)?.classList.add('hidden')
     );
@@ -1210,6 +1211,7 @@ function updateHomeCategoryProgress(){
       updateHomeCategoryProgress();
     }
   }
+
 
 
 
