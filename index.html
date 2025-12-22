@@ -298,13 +298,21 @@
     maxlength="12"
     style="padding:10px;width:90%;margin-top:12px;border-radius:10px;border:1px solid #c7d2fe;font-size:16px"
   />
-  <button
-    class="btn animals mode-btn"
-    style="margin-top:16px"
-    onclick="confirmProfile()"
-  >
-    ▶ Start Learning
-  </button>
+  <div style="margin-top:18px; display:flex; flex-direction:column; align-items:center; gap:10px;">
+    <button
+      class="btn animals mode-btn"
+      onclick="confirmProfile()"
+    >
+      ▶ Start Learning
+    </button>
+
+    <button
+      class="util-btn"
+      onclick="goHome()"
+    >
+      Cancel
+    </button>
+  </div>
 </div>
 
   <!-- PROGRESS -->
@@ -1228,7 +1236,8 @@ function updateHomeCategoryProgress(){
       'match',
       'progress',
       'resultCard',
-      'parentDashboard' 
+      'parentDashboard',
+      'profile' 
     ].forEach(v =>
       document.getElementById(v)?.classList.add('hidden')
     );
