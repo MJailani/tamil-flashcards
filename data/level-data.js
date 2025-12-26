@@ -106,7 +106,7 @@ window.LEVEL_DATA = {
       { ta: "விளக்கு", en: "Lamp" },
       { ta: "மின்விசிறி", en: "Fan" },
       { ta: "தொலைக்காட்சிப்பெட்டி", en: "Television" },
-      { ta: "குளிர்சாதனபெட்டி", en: "Refrigerator" },
+      { ta: "குளிர்சாதனப்பெட்டி", en: "Refrigerator" },
       { ta: "அடுப்பு", en: "Stove" },
       { ta: "பாத்திரம்", en: "Vessel" },
       { ta: "கரண்டி", en: "Spoon" },
