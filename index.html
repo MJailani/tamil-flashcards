@@ -390,14 +390,14 @@
   function shuffle(arr){ return arr.slice().sort(()=>Math.random()-0.5); }
 
   
-// ===== WORD RELATIONS DATA (20 WORDS) =====
+// ===== data section moved to their own files =====
 
   let currentCategory = null;
   let currentMode = null;
   const QUIZ_TOTAL = 20;
   const EXERCISE_TOTAL = 20;
   const LEVEL_CONFIG = {
-  1: { quizOptions: 3, exerciseOptions: 3, matchOptions: 3 },
+  1: { quizOptions: 2, exerciseOptions: 2, matchOptions: 3 },
   2: { quizOptions: 3, exerciseOptions: 3, matchOptions: 5 },
   3: { quizOptions: 4, exerciseOptions: 4, matchOptions: 7 }
 };
@@ -464,6 +464,7 @@ function updateHomeCategoryProgress(){
 
     if(id === 'home'){
       updateHomeCategoryProgress();
+      updateHomeProgress(); 
     }
   }
 
@@ -549,16 +550,11 @@ function updateHomeCategoryProgress(){
 
 
   function startFlashcards(){ show('flash'); updateCard(); }
-  /*function updateCard(){ 
-    front.textContent=list[i].ta; 
-    back.textContent=list[i].en; 
 
-    flashCounter.textContent=`${i+1} / ${list.length}`; 
-  }*/
-  function updateCard(){ 
+  /*function updateCard(){ 
     if(list[i].img){
       front.innerHTML = `
-        <img src="${list[i].img}" style="height:80px;margin-bottom:8px"><br>
+        <img src="${list[i].img}" style="height:100px;max-width:100%;margin-bottom:8px"><br>
         ${list[i].ta}
       `;
     } else {
@@ -567,7 +563,67 @@ function updateHomeCategoryProgress(){
     back.textContent=list[i].en; 
     
     flashCounter.textContent=`${i+1} / ${list.length}`; 
-  }
+  }*/
+ function updateCard(){
+  const item = list[i];
+
+  front.innerHTML = `
+    <div style="
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:16px;
+      padding:20px;
+    ">
+      ${
+        item.img
+          ? `
+            <div style="
+              background:#f8fafc;
+              padding:14px;
+              border-radius:16px;
+            ">
+              <img
+                src="${item.img}"
+                style="
+                  height:100px;
+                  max-width:160px;
+                  object-fit:contain;
+                  display:block;
+                "
+              >
+            </div>
+          `
+          : ``
+      }
+
+      <div style="
+        font-size:34px;
+        font-weight:700;
+        color:#1e1b4b;
+        text-align:center;
+      ">
+        ${item.ta}
+      </div>
+    </div>
+  `;
+
+  back.innerHTML = `
+    <div style="
+      font-size:28px;
+      font-weight:600;
+      text-align:center;
+      color:#1e293b;
+    ">
+      ${item.en}
+    </div>
+  `;
+
+  flashCounter.textContent = `${i + 1} / ${list.length}`;
+}
+
+
   
   function next(){ if(i<list.length-1){ i++; updateCard(); } }
   function prev(){ if(i>0){ i--; updateCard(); } }
@@ -868,7 +924,9 @@ function getLevelState(){
   if(raw) return JSON.parse(raw);
 
   // default for new profile
-  const state = { current: 1, unlocked: [1] };
+   // 🔓 TEMPORARY: unlock Beginner + Intermediate
+  const state = { current: 1, unlocked: [1, 2] };
+  //const state = { current: 1, unlocked: [1] };
   localStorage.setItem(levelKey(), JSON.stringify(state));
   return state;
 }
