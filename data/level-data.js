@@ -153,7 +153,7 @@ window.LEVEL_DATA = {
       { ta: "காட்டுப்பன்றி", en: "Wild Boar" },
       { ta: "கங்காரு", en: "Kangaroo" },
       { ta: "நீர்நாய்", en: "Otter" },
-      { ta: "காட்டுநாய்", en: "Wolf" },
+      { ta: "ஓநாய்", en: "Wolf" },
       { ta: "பல்லி", en: "Lizard" },
       { ta: "நீல திமிங்கிலம்", en: "Blue Whale" },
       { ta: "டால்பின்", en: "Dolphin" },
@@ -162,7 +162,7 @@ window.LEVEL_DATA = {
       { ta: "காட்டுப் பூனை", en: "Lynx" },
       { ta: "காட்டு மாடு", en: "Bison" },
       { ta: "காட்டுக் குதிரை", en: "Zebra" },
-      { ta: "ஓநாய்", en: "Jackal" },
+      { ta: "நரி", en: "Jackal" },
       { ta: "மலை ஆடு", en: "Mountain Goat" }
     ],
 
