@@ -475,6 +475,13 @@ function updateHomeCategoryProgress(){
 
   window.onload = () => {
   if(getProfile()){
+    // 🔓 TEMP FIX: ensure Intermediate is unlocked for everyone
+    const state = getLevelState();
+    if(!state.unlocked.includes(2)){
+      state.unlocked.push(2);
+      saveLevelState(state);
+    }
+
     show('home');
     updateHomeLevel();
     updateHomeProfile();
