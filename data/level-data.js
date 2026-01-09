@@ -226,7 +226,7 @@ window.LEVEL_DATA = {
       { ta: "நினைவுகொள்", en: "Remember" },
       { ta: "கணித்து பார்", en: "Calculate" },
       { ta: "கண்டுபிடி", en: "Discover" },
-      { ta: "அமை", en: "Organize" },
+      { ta: "ஏற்பாடு செய்", en: "Organize" },
       { ta: "பாதுகாப்பு செய்", en: "Protect" },
       { ta: "சரிபார்", en: "Verify" },
       { ta: "உருவாக்கு", en: "Create" },
