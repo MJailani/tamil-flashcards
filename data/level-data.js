@@ -47,7 +47,7 @@ window.LEVEL_DATA = {
       { ta: "பென்குயின்", en: "Penguin" },
       { ta: "தும்பி", en: "Bulbul" },
       { ta: "மைனா", en: "Myna" },
-      { ta: "நாரைமூக்கு", en: "Crane" }
+      { ta: "கொக்கு", en: "Crane" }
     ],
 
     fruits: [
