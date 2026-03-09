@@ -253,7 +253,7 @@ window.LEVEL_DATA = {
       { ta: "அலங்கார கண்ணாடி", en: "Dressing Mirror" },
       { ta: "சேமிப்பு பெட்டி", en: "Storage Box" },
       { ta: "பாத்திர அலமாரி", en: "Dish Rack" },
-      { ta: "தண்ணீர் பாட்டில்", en: "Water Bottle" },
+      { ta: "பாத்திரம்கழுவி", en: "Dish Washer" },
       { ta: "குப்பை தொட்டி", en: "Dustbin" },
       { ta: "மின் அடுப்பு", en: "Electric Stove" }
     ],
@@ -427,3 +427,4 @@ window.LEVEL_DATA = {
      Content unchanged — only structure updated.
   */
 };
+
